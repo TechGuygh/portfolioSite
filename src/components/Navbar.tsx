@@ -7,9 +7,27 @@ import { cn } from '../lib/utils';
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      // Track active section
+      const sections = NAV_LINKS.map(link => link.href.replace('#', ''));
+      sections.push('hero');
+      
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -18,7 +36,7 @@ export default function Navbar() {
     <nav
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 py-4',
-        isScrolled ? 'bg-zorvyn-black/50 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent'
+        isScrolled ? 'bg-zorvyn-black/30 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -28,26 +46,44 @@ export default function Navbar() {
           animate={{ opacity: 1, x: 0 }}
           className="text-xl font-bold tracking-tight flex items-center gap-2"
         >
-          <div className="w-8 h-8 bg-gradient-to-br from-zorvyn-blue to-zorvyn-purple rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm">E</span>
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zorvyn-blue/50 glow-blue">
+            <img 
+              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/ais/fbyrzk6swjzhjvmk6a2uaz/input_file_1.png" 
+              alt="Emmanuel Aidoo Logo" 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <span className="hidden sm:block">Emmanuel Aidoo</span>
         </motion.a>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center space-x-8">
-          {NAV_LINKS.map((link, i) => (
-            <motion.a
-              key={link.name}
-              href={link.href}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="text-sm font-medium text-white/60 hover:text-white transition-colors duration-300"
-            >
-              {link.name}
-            </motion.a>
-          ))}
+          {NAV_LINKS.map((link, i) => {
+            const isActive = activeSection === link.href.replace('#', '');
+            return (
+              <motion.a
+                key={link.name}
+                href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={cn(
+                  "text-sm font-medium transition-colors duration-300 relative py-2",
+                  isActive ? "text-white" : "text-white/60 hover:text-white"
+                )}
+              >
+                {link.name}
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-zorvyn-blue via-zorvyn-purple to-zorvyn-accent glow-blue"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </motion.a>
+            );
+          })}
           <motion.a
             href="#contact"
             initial={{ opacity: 0, scale: 0.9 }}

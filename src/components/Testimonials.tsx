@@ -5,7 +5,7 @@ import { Quote } from 'lucide-react';
 
 export default function Testimonials() {
   return (
-    <section className="py-32 px-6 bg-zorvyn-black">
+    <section className="py-32 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24">
           <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
@@ -31,7 +31,16 @@ export default function Testimonials() {
                 "{t.content}"
               </p>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zorvyn-blue to-zorvyn-purple" />
+                {t.image ? (
+                  <img 
+                    src={t.image} 
+                    alt={t.name} 
+                    className="w-12 h-12 rounded-full object-cover border border-zorvyn-blue/20"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zorvyn-blue to-zorvyn-purple" />
+                )}
                 <div>
                   <div className="font-bold text-white">{t.name}</div>
                   <div className="text-xs text-white/40 uppercase tracking-widest">{t.role}</div>

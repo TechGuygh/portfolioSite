@@ -64,10 +64,11 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
             <span className="text-[10px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">The Result</span>
             <p className="text-sm text-white/80 font-medium leading-relaxed italic border-l-2 border-zorvyn-blue/30 pl-4">"{project.result}"</p>
           </div>
-          <div className="pt-4">
+          <div>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-zorvyn-blue mb-3 block font-bold">Skills Used</span>
             <div className="flex flex-wrap gap-2">
               {project.technologies?.map((tech) => (
-                <span key={tech} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] uppercase tracking-widest text-white/40">
+                <span key={tech} className="text-[10px] px-3 py-1 bg-zorvyn-blue/10 border border-zorvyn-blue/20 rounded-md text-zorvyn-blue font-medium">
                   {tech}
                 </span>
               ))}
@@ -92,7 +93,7 @@ export default function Projects() {
     : PROJECTS.filter(p => p.category === activeCategory);
 
   return (
-    <section id="projects" className="py-32 px-6 bg-zorvyn-black">
+    <section id="projects" className="py-32 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
           <div>

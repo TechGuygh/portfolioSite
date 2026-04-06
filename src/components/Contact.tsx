@@ -4,16 +4,56 @@ import { Mail, Linkedin, Send, CheckCircle } from 'lucide-react';
 
 export default function Contact() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [errors, setErrors] = useState({ name: '', email: '', message: '' });
+
+  const validate = () => {
+    const newErrors = { name: '', email: '', message: '' };
+    let isValid = true;
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+      isValid = false;
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+      isValid = false;
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 5000);
+    if (validate()) {
+      // Simulate form submission
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setIsSubmitted(false), 5000);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   return (
-    <section id="contact" className="py-32 px-6 bg-zorvyn-dark relative overflow-hidden">
+    <section id="contact" className="py-32 px-6 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-zorvyn-blue/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -115,20 +155,44 @@ export default function Contact() {
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Name</label>
-                  <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-zorvyn-blue transition-colors" placeholder="John Doe" />
+                  <input 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    type="text" 
+                    className={`w-full bg-white/5 border rounded-2xl px-6 py-4 focus:outline-none transition-colors ${errors.name ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
+                    placeholder="John Doe" 
+                  />
+                  {errors.name && <p className="text-[10px] text-red-500 ml-1">{errors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Email</label>
-                  <input required type="email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-zorvyn-blue transition-colors" placeholder="john@example.com" />
+                  <input 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    type="email" 
+                    className={`w-full bg-white/5 border rounded-2xl px-6 py-4 focus:outline-none transition-colors ${errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
+                    placeholder="john@example.com" 
+                  />
+                  {errors.email && <p className="text-[10px] text-red-500 ml-1">{errors.email}</p>}
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Message</label>
-                <textarea required rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-zorvyn-blue transition-colors resize-none" placeholder="How can I help you?" />
+                <textarea 
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={4} 
+                  className={`w-full bg-white/5 border rounded-2xl px-6 py-4 focus:outline-none transition-colors resize-none ${errors.message ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
+                  placeholder="How can I help you?" 
+                />
+                {errors.message && <p className="text-[10px] text-red-500 ml-1">{errors.message}</p>}
               </div>
               <button type="submit" className="w-full py-5 bg-white text-zorvyn-black font-bold rounded-2xl hover:bg-zorvyn-blue hover:text-white transition-all duration-500 flex items-center justify-center gap-2 group">
                 Send Message <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />

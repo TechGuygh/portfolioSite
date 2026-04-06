@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
 import Services from './components/Services';
 import Experience from './components/Experience';
+import Certifications from './components/Certifications';
 import TechStack from './components/TechStack';
 import Projects from './components/Projects';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
-import { Copy, Mail, Linkedin, ArrowUp, Send, Twitter, Facebook, MessageSquare, BookOpen } from 'lucide-react';
+import { Copy, ArrowUp, Send, Twitter, Facebook, MessageSquare, BookOpen } from 'lucide-react';
 
 export default function App() {
   const [copied, setCopied] = useState(false);
@@ -18,102 +20,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zorvyn-black text-white selection:bg-zorvyn-blue/30 selection:text-white overflow-x-hidden">
-      <Navbar />
-      
-      <main>
+    <div className="min-h-screen bg-zorvyn-black text-white selection:bg-zorvyn-blue/30 selection:text-white overflow-x-hidden relative">
+      {/* Global Background Gradients */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.5, 1],
+            x: [0, 200, 0],
+            y: [0, 100, 0]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-[20%] -right-[10%] w-[80%] h-[80%] bg-zorvyn-purple/25 rounded-full blur-[150px]" 
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1.5, 1, 1.5],
+            x: [0, -200, 0],
+            y: [0, -100, 0]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-[20%] -left-[10%] w-[80%] h-[80%] bg-zorvyn-blue/20 rounded-full blur-[150px]" 
+        />
+        <motion.div 
+          animate={{ 
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.3, 1]
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-zorvyn-accent/15 rounded-full blur-[200px]" 
+        />
+        <div className="absolute inset-0 bg-zorvyn-black/50" />
+      </div>
+
+      <div className="relative z-10">
+        <Navbar />
+        
+        <main>
         <Hero />
         <TechStack />
         <About />
         <Services />
         <Experience />
+        <Certifications />
         <Projects />
         <Testimonials />
         <Contact />
         
         {/* Footer */}
-        <footer className="py-12 px-6 bg-zorvyn-black border-t border-white/5">
+        <footer className="py-12 px-6 border-t border-white/5 relative z-10">
           <div className="max-w-7xl mx-auto">
             {/* Top Footer Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 mb-16">
-              <div className="flex flex-col md:flex-row items-center gap-8 w-full lg:w-auto">
-                <span className="text-sm font-medium text-white/80 whitespace-nowrap">Subscribe to Updates</span>
-                <div className="relative w-full md:w-96">
-                  <input 
-                    type="email" 
-                    placeholder="Enter your work email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:border-zorvyn-blue transition-colors"
-                  />
-                  <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-zorvyn-blue rounded-lg hover:bg-zorvyn-blue/80 transition-colors">
-                    <Send size={18} className="text-white" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-8 flex-wrap justify-center">
-                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => {
-                  navigator.clipboard.writeText('aidooemmanuel038@gmail.com');
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}>
-                  <Mail size={18} className="text-zorvyn-blue" />
-                  <span className="text-sm text-white/60 group-hover:text-white transition-colors">
-                    {copied ? 'Copied!' : 'aidooemmanuel038@gmail.com'}
-                  </span>
-                </div>
-                <a 
-                  href="https://www.linkedin.com/in/emmanuel-aidoo038" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
-                >
-                  <Linkedin size={18} className="text-zorvyn-blue" />
-                  <span className="text-sm text-white/60 group-hover:text-white transition-colors">LinkedIn</span>
-                </a>
+            <div className="flex flex-col items-center justify-between gap-8 mb-12">
+              <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 flex-wrap justify-center">
                 <a 
                   href="https://github.com/TechGuygh" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2 group relative"
                 >
                   <Copy size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">GitHub</span>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zorvyn-blue text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    GitHub
+                  </div>
                 </a>
                 <a 
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2 group relative"
                 >
                   <Twitter size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">Twitter</span>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zorvyn-blue text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Twitter
+                  </div>
                 </a>
                 <a 
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2 group relative"
                 >
                   <Facebook size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">Facebook</span>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zorvyn-blue text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Facebook
+                  </div>
                 </a>
                 <a 
                   href="https://discord.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2 group relative"
                 >
                   <MessageSquare size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">Discord</span>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zorvyn-blue text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Discord
+                  </div>
                 </a>
                 <a 
                   href="https://medium.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2 group relative"
                 >
                   <BookOpen size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">Medium</span>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zorvyn-blue text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Medium
+                  </div>
                 </a>
               </div>
             </div>
@@ -142,6 +159,7 @@ export default function App() {
           </div>
         </footer>
       </main>
+      </div>
     </div>
   );
 }

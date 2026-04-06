@@ -5,9 +5,43 @@ export const NAV_LINKS = [
   { name: 'Home', href: '#hero' },
   { name: 'About', href: '#about' },
   { name: 'Services', href: '#services' },
-  { name: 'Experience', href: '#experience' },
   { name: 'Projects', href: '#projects' },
   { name: 'Contact', href: '#contact' },
+];
+
+export const CERTIFICATIONS = [
+  {
+    name: 'CompTIA Security+',
+    issuer: 'CompTIA',
+    year: '2023',
+    category: 'Cybersecurity',
+    icon: Shield,
+    logo: 'https://www.vectorlogo.zone/logos/comptia/comptia-icon.svg',
+  },
+  {
+    name: 'Certified SOC Analyst (CSA)',
+    issuer: 'EC-Council',
+    year: '2024',
+    category: 'Cybersecurity',
+    icon: Search,
+    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/EC-Council_Logo.svg/1200px-EC-Council_Logo.svg.png',
+  },
+  {
+    name: 'Microsoft Security Operations Analyst (SC-200)',
+    issuer: 'Microsoft',
+    year: '2024',
+    category: 'Cybersecurity',
+    icon: Lock,
+    logo: 'https://www.vectorlogo.zone/logos/microsoft/microsoft-icon.svg',
+  },
+  {
+    name: 'Google IT Support Professional Certificate',
+    issuer: 'Google',
+    year: '2022',
+    category: 'IT Support',
+    icon: Cpu,
+    logo: 'https://www.vectorlogo.zone/logos/google/google-icon.svg',
+  },
 ];
 
 export const STATS = [
@@ -110,10 +144,12 @@ export const TESTIMONIALS = [
     name: 'Sarah Jenkins',
     role: 'CISO, Fintech Global',
     content: 'Emmanuel’s ability to spot anomalies that others miss is uncanny. He’s a vital asset to our security posture.',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
   },
   {
     name: 'David Chen',
     role: 'Security Director, CloudScale',
     content: 'The automation workflows Emmanuel built have completely transformed our SOC efficiency. Highly recommended.',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
   },
 ];

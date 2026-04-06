@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 
 export default function Services() {
   return (
-    <section id="services" className="py-32 px-6 bg-zorvyn-dark relative">
+    <section id="services" className="py-32 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24">
           <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">

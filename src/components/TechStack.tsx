@@ -4,7 +4,7 @@ import { TECH_STACK } from '../constants';
 
 export default function TechStack() {
   return (
-    <section className="py-24 px-6 bg-zorvyn-black border-y border-white/5 overflow-hidden">
+    <section className="py-24 px-6 border-y border-white/5 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
           {TECH_STACK.map((tech, i) => (

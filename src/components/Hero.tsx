@@ -4,7 +4,7 @@ import { ChevronDown, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg pt-32 pb-12">
       {/* Animated Glows */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-zorvyn-blue/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-zorvyn-purple/20 rounded-full blur-[120px] animate-pulse delay-700" />
@@ -22,7 +22,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-zorvyn-blue animate-ping" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white/60">Available for Strategic Security Operations</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white/60">Available for Strategic OPS</span>
           </motion.div>
 
           <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.1] text-white">

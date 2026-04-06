@@ -3,8 +3,10 @@ import { motion } from 'motion/react';
 import { STATS } from '../constants';
 
 export default function About() {
+  const [isSelected, setIsSelected] = React.useState(false);
+
   return (
-    <section id="about" className="py-32 px-6 bg-zorvyn-black relative overflow-hidden">
+    <section id="about" className="py-32 px-6 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <motion.div
@@ -44,14 +46,17 @@ export default function About() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="aspect-square rounded-3xl overflow-hidden border border-white/10 relative group">
+            <div 
+              className="aspect-square rounded-3xl overflow-hidden border border-white/10 relative group cursor-pointer"
+              onClick={() => setIsSelected(!isSelected)}
+            >
               <img
-                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&q=80&w=1000"
+                src="https://storage.googleapis.com/m-infra.appspot.com/public/res/ais/fbyrzk6swjzhjvmk6a2uaz/input_file_1.png"
                 alt="Emmanuel Aidoo"
-                className="w-full h-full object-cover transition-all duration-700"
+                className={`w-full h-full object-cover transition-all duration-700 ${isSelected ? 'grayscale-0' : 'grayscale hover:grayscale-0'}`}
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black via-transparent to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black via-transparent to-transparent opacity-60 pointer-events-none" />
             </div>
             {/* Decorative Elements */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-zorvyn-blue/20 rounded-full blur-3xl" />

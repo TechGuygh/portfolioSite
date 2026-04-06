@@ -7,8 +7,35 @@ export default function Experience() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   return (
-    <section id="experience" className="py-32 px-6 bg-zorvyn-black relative">
-      <div className="max-w-7xl mx-auto">
+    <section id="experience" className="py-32 px-6 relative overflow-hidden">
+      {/* Background Gradients/Glows */}
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.2, 0.3, 0.2] 
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[600px] h-[600px] bg-zorvyn-purple/30 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/4 pointer-events-none" 
+      />
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.2, 0.1] 
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-zorvyn-blue/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/4 pointer-events-none" 
+      />
+      <motion.div 
+        animate={{ 
+          x: [-20, 20, -20],
+          y: [-20, 20, -20]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 left-1/3 w-[400px] h-[400px] bg-zorvyn-purple/15 rounded-full blur-[100px] pointer-events-none" 
+      />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-br from-zorvyn-purple/10 via-transparent to-zorvyn-blue/10 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
           <div className="max-w-2xl">
             <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
