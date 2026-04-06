@@ -21,10 +21,10 @@ export default function About() {
               <span className="text-white/40">Analytical Thinking & Real-World Impact.</span>
             </h2>
             <p className="text-white/60 leading-relaxed mb-8 text-lg">
-              With several years of hands-on experience in high-pressure Security Operations Centers, I specialize in bridging the gap between complex threat data and actionable defense strategies.
+              I started my career in IT Support, where I developed a strong foundation in system troubleshooting, network management, and user support.
             </p>
             <p className="text-white/60 leading-relaxed mb-12">
-              My approach combines technical mastery of SIEM and SOAR platforms with a deep understanding of the adversary mindset, ensuring that every incident is not just handled, but learned from.
+              This experience sharpened my ability to identify system vulnerabilities and respond quickly to technical issues — skills that now enhance my effectiveness as a SOC Analyst.
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
@@ -46,12 +46,12 @@ export default function About() {
           >
             <div className="aspect-square rounded-3xl overflow-hidden border border-white/10 relative group">
               <img
-                src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000"
+                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&q=80&w=1000"
                 alt="Emmanuel Aidoo"
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                className="w-full h-full object-cover transition-all duration-700"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black via-transparent to-transparent opacity-60" />
             </div>
             {/* Decorative Elements */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-zorvyn-blue/20 rounded-full blur-3xl" />

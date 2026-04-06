@@ -75,12 +75,25 @@ export default function Experience() {
                         <p className="text-white/70 leading-relaxed mb-8 text-lg">
                           {exp.description}
                         </p>
-                        <div className="flex flex-wrap gap-3">
-                          {exp.tags.map((tag) => (
-                            <span key={tag} className="text-[10px] uppercase tracking-widest px-4 py-1.5 bg-white/5 border border-white/10 rounded-full font-semibold">
-                              {tag}
-                            </span>
-                          ))}
+                        
+                        <div className="space-y-6">
+                          <div>
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-zorvyn-blue mb-3 block font-bold">Core Technologies</span>
+                            <div className="flex flex-wrap gap-2">
+                              {exp.technologies?.map((tech) => (
+                                <span key={tech} className="text-[10px] px-3 py-1 bg-zorvyn-blue/10 border border-zorvyn-blue/20 rounded-md text-zorvyn-blue font-medium">
+                                  {tech}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">The Challenge</span>
+                            <p className="text-sm text-white/50 leading-relaxed">
+                              {exp.challenges}
+                            </p>
+                          </div>
                         </div>
                       </div>
 

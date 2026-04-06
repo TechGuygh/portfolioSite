@@ -58,6 +58,8 @@ export const EXPERIENCE = [
     description: 'Leading incident response efforts for Fortune 500 clients. Orchestrating threat hunting missions across hybrid cloud environments.',
     impact: 'Reduced mean time to resolution (MTTR) by 40% through automated playbook implementation.',
     tags: ['Incident Response', 'Threat Hunting', 'SIEM'],
+    technologies: ['Splunk', 'CrowdStrike', 'Python', 'AWS Security Hub'],
+    challenges: 'Managing high-velocity alert streams while maintaining sub-second detection latency across distributed cloud architectures.',
   },
   {
     role: 'Security Operations Analyst',
@@ -66,6 +68,8 @@ export const EXPERIENCE = [
     description: 'Monitored and analyzed security events from various sources. Performed deep-packet analysis and malware triage.',
     impact: 'Identified and mitigated a sophisticated supply-chain attack before data exfiltration occurred.',
     tags: ['Malware Analysis', 'Network Security', 'EDR'],
+    technologies: ['Wireshark', 'Microsoft Sentinel', 'Cortex XSOAR', 'ELK Stack'],
+    challenges: 'Deconstructing obfuscated malware payloads and correlating disparate log sources to map out adversary lateral movement.',
   },
 ];
 
@@ -77,6 +81,7 @@ export const PROJECTS = [
     solution: 'Redesigned Splunk dashboards with advanced correlation logic and visual hierarchy.',
     result: '60% reduction in alert fatigue and 25% faster triage time.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
+    technologies: ['Splunk', 'RegEx', 'Dashboarding', 'Log Analysis'],
   },
   {
     title: 'Automated Phishing Triage',
@@ -85,6 +90,7 @@ export const PROJECTS = [
     solution: 'Developed a Python-based SOAR playbook for automated URL and attachment scanning.',
     result: 'Triage time reduced to seconds per email, saving 20 hours weekly.',
     image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1200',
+    technologies: ['Python', 'SOAR', 'API Integration', 'Threat Intel'],
   },
 ];
 

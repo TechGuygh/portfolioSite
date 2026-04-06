@@ -16,8 +16,10 @@ export default function TechStack() {
               transition={{ delay: i * 0.1 }}
               className="flex items-center gap-3 group relative"
             >
-              <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-zorvyn-blue/50 transition-all duration-300">
-                <tech.icon size={20} className="text-white/40 group-hover:text-zorvyn-blue transition-colors" />
+              <div className="p-2 bg-white/5 rounded-lg border border-white/10 group-hover:border-zorvyn-blue/50 group-hover:animate-glow-pulse transition-all duration-300 relative">
+                <tech.icon size={20} className="text-white/40 group-hover:text-zorvyn-blue transition-colors relative z-10" />
+                {/* Pulsing Glow Background */}
+                <div className="absolute inset-0 bg-zorvyn-blue/20 rounded-lg opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300 animate-pulse" />
               </div>
               <span className="text-sm font-semibold text-white/30 group-hover:text-white transition-colors uppercase tracking-widest">
                 {tech.name}

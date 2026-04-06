@@ -5,6 +5,14 @@ import { ArrowUpRight } from 'lucide-react';
 
 function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  React.useEffect(() => {
+    if (containerRef.current) {
+      setIsHydrated(true);
+    }
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -24,7 +32,7 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
     >
       <div className="relative h-72 overflow-hidden">
         <motion.img
-          style={{ y }}
+          style={{ y: isHydrated ? y : 0 }}
           src={project.image}
           alt={project.title}
           className="absolute inset-0 w-full h-[120%] object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
@@ -55,6 +63,15 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
           <div>
             <span className="text-[10px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">The Result</span>
             <p className="text-sm text-white/80 font-medium leading-relaxed italic border-l-2 border-zorvyn-blue/30 pl-4">"{project.result}"</p>
+          </div>
+          <div className="pt-4">
+            <div className="flex flex-wrap gap-2">
+              {project.technologies?.map((tech) => (
+                <span key={tech} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] uppercase tracking-widest text-white/40">
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -97,12 +114,19 @@ export default function Projects() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-6 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all duration-300 border ${
+                  className={`relative px-6 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all duration-300 border ${
                     activeCategory === cat 
-                      ? 'bg-zorvyn-blue border-zorvyn-blue text-white glow-blue' 
+                      ? 'border-zorvyn-blue text-white' 
                       : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white'
                   }`}
                 >
+                  {activeCategory === cat && (
+                    <motion.div
+                      layoutId="activeCategory"
+                      className="absolute inset-0 bg-zorvyn-blue rounded-full glow-blue -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                   {cat}
                 </button>
               ))}
