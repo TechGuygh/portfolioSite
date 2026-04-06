@@ -64,24 +64,53 @@ export default function Contact() {
             <AnimatePresence>
               {isSubmitted && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-zorvyn-dark/90 backdrop-blur-sm rounded-3xl p-10 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-zorvyn-dark/95 backdrop-blur-md rounded-3xl p-10 text-center"
                 >
-                  <div className="w-20 h-20 rounded-full bg-zorvyn-blue/20 flex items-center justify-center mb-6">
-                    <CheckCircle size={40} className="text-zorvyn-blue" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
-                  <p className="text-white/50 text-sm">
-                    Thank you for reaching out. I'll get back to you as soon as possible.
-                  </p>
-                  <button 
-                    onClick={() => setIsSubmitted(false)}
-                    className="mt-8 text-[10px] uppercase tracking-widest font-bold text-zorvyn-blue hover:text-white transition-colors"
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 20,
+                      delay: 0.1 
+                    }}
+                    className="w-24 h-24 rounded-full bg-zorvyn-blue/20 flex items-center justify-center mb-8 relative"
                   >
-                    Send another message
-                  </button>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 rounded-full bg-zorvyn-blue/10 scale-150 blur-xl"
+                    />
+                    <CheckCircle size={48} className="text-zorvyn-blue relative z-10" />
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <h3 className="text-3xl font-bold mb-3 bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">
+                      Transmission Successful
+                    </h3>
+                    <p className="text-white/50 text-base max-w-[280px] mx-auto leading-relaxed">
+                      Your message has been encrypted and sent. I'll respond through secure channels soon.
+                    </p>
+                  </motion.div>
+
+                  <motion.button 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    onClick={() => setIsSubmitted(false)}
+                    className="mt-10 px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase tracking-[0.2em] font-bold text-zorvyn-blue hover:bg-zorvyn-blue hover:text-white transition-all duration-300"
+                  >
+                    New Transmission
+                  </motion.button>
                 </motion.div>
               )}
             </AnimatePresence>

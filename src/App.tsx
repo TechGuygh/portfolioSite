@@ -8,7 +8,7 @@ import TechStack from './components/TechStack';
 import Projects from './components/Projects';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
-import { Copy, Mail, Linkedin, ArrowUp, Send, Twitter, Facebook } from 'lucide-react';
+import { Copy, Mail, Linkedin, ArrowUp, Send, Twitter, Facebook, MessageSquare, BookOpen } from 'lucide-react';
 
 export default function App() {
   const [copied, setCopied] = useState(false);
@@ -96,6 +96,24 @@ export default function App() {
                 >
                   <Facebook size={18} className="text-zorvyn-blue" />
                   <span className="text-sm text-white/60 group-hover:text-white transition-colors">Facebook</span>
+                </a>
+                <a 
+                  href="https://discord.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 group"
+                >
+                  <MessageSquare size={18} className="text-zorvyn-blue" />
+                  <span className="text-sm text-white/60 group-hover:text-white transition-colors">Discord</span>
+                </a>
+                <a 
+                  href="https://medium.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 group"
+                >
+                  <BookOpen size={18} className="text-zorvyn-blue" />
+                  <span className="text-sm text-white/60 group-hover:text-white transition-colors">Medium</span>
                 </a>
               </div>
             </div>
