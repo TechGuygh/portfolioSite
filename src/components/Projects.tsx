@@ -95,7 +95,13 @@ export default function Projects() {
   return (
     <section id="projects" className="py-32 px-6 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8"
+        >
           <div>
             <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
               Intel Reports
@@ -133,7 +139,7 @@ export default function Projects() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <motion.div 
           layout

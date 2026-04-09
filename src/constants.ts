@@ -1,10 +1,15 @@
 import { motion } from 'motion/react';
 import { Shield, Terminal, Activity, Lock, Cpu, Search, AlertTriangle, FileText, Award, Zap, Eye, Database, MessageSquare } from 'lucide-react';
 
+import profile1 from './assets/profile1.png';
+import logo from './assets/logo.png';
+
 export const NAV_LINKS = [
   { name: 'Home', href: '#hero' },
   { name: 'About', href: '#about' },
   { name: 'Services', href: '#services' },
+  { name: 'Experience', href: '#experience' },
+  { name: 'Volunteering', href: '#volunteering' },
   { name: 'Projects', href: '#projects' },
   { name: 'Contact', href: '#contact' },
 ];
@@ -17,6 +22,7 @@ export const CERTIFICATIONS = [
     category: 'Cybersecurity',
     icon: Shield,
     logo: 'https://www.vectorlogo.zone/logos/comptia/comptia-icon.svg',
+    bgImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
   },
   {
     name: 'Certified SOC Analyst (CSA)',
@@ -25,6 +31,7 @@ export const CERTIFICATIONS = [
     category: 'Cybersecurity',
     icon: Search,
     logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/EC-Council_Logo.svg/1200px-EC-Council_Logo.svg.png',
+    bgImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800',
   },
   {
     name: 'Microsoft Security Operations Analyst (SC-200)',
@@ -33,6 +40,7 @@ export const CERTIFICATIONS = [
     category: 'Cybersecurity',
     icon: Lock,
     logo: 'https://www.vectorlogo.zone/logos/microsoft/microsoft-icon.svg',
+    bgImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=800',
   },
   {
     name: 'Google IT Support Professional Certificate',
@@ -41,6 +49,7 @@ export const CERTIFICATIONS = [
     category: 'IT Support',
     icon: Cpu,
     logo: 'https://www.vectorlogo.zone/logos/google/google-icon.svg',
+    bgImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
   },
 ];
 
@@ -151,5 +160,64 @@ export const TESTIMONIALS = [
     role: 'Security Director, CloudScale',
     content: 'The automation workflows Emmanuel built have completely transformed our SOC efficiency. Highly recommended.',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+  },
+];
+
+export const VOLUNTEERING = [
+  {
+    organization: 'Cyber Defense Initiative',
+    role: 'Lead Security Mentor',
+    period: '2023 - Present',
+    description: 'Mentoring aspiring cybersecurity professionals in threat detection and incident response fundamentals.',
+    impact: 'Successfully guided 15+ mentees into entry-level SOC roles within 6 months.',
+    icon: Shield,
+    image: profile1,
+    stats: [
+      { label: 'Mentees', value: '15+' },
+      { label: 'Success', value: '100%' },
+      { label: 'Hours', value: '200+' },
+    ]
+  },
+  {
+    organization: 'Open Source Security Foundation (OpenSSF)',
+    role: 'Vulnerability Researcher',
+    period: '2022 - 2023',
+    description: 'Contributed to identifying and documenting vulnerabilities in widely used open-source libraries.',
+    impact: 'Reported 5 critical vulnerabilities, improving the security posture of thousands of downstream projects.',
+    icon: Search,
+    image: logo,
+    stats: [
+      { label: 'Vulns', value: '5' },
+      { label: 'Projects', value: '1k+' },
+      { label: 'Critical', value: '2' },
+    ]
+  },
+  {
+    organization: 'Local STEM Outreach',
+    role: 'Workshop Coordinator',
+    period: '2021 - 2022',
+    description: 'Organized and led cybersecurity awareness workshops for high school students.',
+    impact: 'Reached over 500 students, increasing interest in cybersecurity careers by 30% based on post-workshop surveys.',
+    icon: Cpu,
+    image: profile1,
+    stats: [
+      { label: 'Students', value: '500+' },
+      { label: 'Events', value: '12' },
+      { label: 'Growth', value: '30%' },
+    ]
+  },
+  {
+    organization: 'Tech Community Leaders',
+    role: 'Chapter President',
+    period: '2020 - 2021',
+    description: 'Managed a local chapter of 100+ tech enthusiasts, organizing monthly meetups and technical talks.',
+    impact: 'Grew membership by 50% and secured sponsorships from 3 local tech firms.',
+    icon: Award,
+    image: logo,
+    stats: [
+      { label: 'Members', value: '100+' },
+      { label: 'Meetups', value: '24' },
+      { label: 'Sponsors', value: '3' },
+    ]
   },
 ];

@@ -21,9 +21,10 @@ export default function Certifications() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Certifications & <span className="text-zorvyn-blue glow-text">Credentials</span>
@@ -34,7 +35,13 @@ export default function Certifications() {
           </motion.div>
 
           {/* Filter Tabs */}
-          <div className="flex flex-wrap gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-wrap gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl"
+          >
             {CATEGORIES.map((category) => (
               <button
                 key={category}
@@ -56,7 +63,7 @@ export default function Certifications() {
                 <span className="relative z-10">{category}</span>
               </button>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         <motion.div 
@@ -75,6 +82,27 @@ export default function Certifications() {
                 whileHover={{ y: -8 }}
                 className="group p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl hover:border-zorvyn-blue/50 transition-all duration-500 relative overflow-hidden"
               >
+                {/* Blurred Background Image */}
+                {cert.bgImage && (
+                  <div className="absolute inset-0 z-0 opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-1000 pointer-events-none overflow-hidden">
+                    <motion.img 
+                      src={cert.bgImage} 
+                      alt="" 
+                      animate={{ 
+                        scale: [1.1, 1.2, 1.1],
+                        rotate: [0, 2, 0]
+                      }}
+                      transition={{ 
+                        duration: 20, 
+                        repeat: Infinity, 
+                        ease: "linear" 
+                      }}
+                      className="w-full h-full object-cover blur-3xl grayscale mix-blend-overlay"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                )}
+
                 {/* Shimmer Effect */}
                 <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
                 

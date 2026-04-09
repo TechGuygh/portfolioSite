@@ -7,7 +7,13 @@ export default function Services() {
   return (
     <section id="services" className="py-32 px-6 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-24">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-24"
+        >
           <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
             Expertise
           </span>
@@ -17,7 +23,7 @@ export default function Services() {
           <p className="text-white/40 max-w-2xl mx-auto">
             Specialized security services designed to detect, respond, and automate in a rapidly evolving threat landscape.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {SERVICES.map((service, i) => (

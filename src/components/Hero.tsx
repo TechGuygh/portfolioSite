@@ -9,6 +9,59 @@ export default function Hero() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-zorvyn-blue/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-zorvyn-purple/20 rounded-full blur-[120px] animate-pulse delay-700" />
 
+      {/* Floating Geometric Shapes */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1],
+              scale: [1, 1.2, 1],
+              rotate: [0, 180, 360],
+              x: [0, Math.random() * 100 - 50, 0],
+              y: [0, Math.random() * 100 - 50, 0]
+            }}
+            transition={{ 
+              duration: 10 + Math.random() * 10, 
+              repeat: Infinity, 
+              ease: "linear",
+              delay: i * 2
+            }}
+            className="absolute border border-white/5 rounded-lg"
+            style={{
+              width: `${20 + Math.random() * 60}px`,
+              height: `${20 + Math.random() * 60}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+        
+        {/* Subtle Particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={`p-${i}`}
+            animate={{ 
+              y: [0, -100, 0],
+              opacity: [0, 0.5, 0],
+              scale: [0, 1, 0]
+            }}
+            transition={{ 
+              duration: 5 + Math.random() * 5, 
+              repeat: Infinity, 
+              ease: "easeInOut",
+              delay: Math.random() * 5
+            }}
+            className="absolute w-1 h-1 bg-zorvyn-blue/30 rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 text-center max-w-5xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -22,7 +75,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-zorvyn-blue animate-ping" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white/60">Available for Strategic OPS</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white/60">Available for Strategic Operations</span>
           </motion.div>
 
           <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.1] text-white">

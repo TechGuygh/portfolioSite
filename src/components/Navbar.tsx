@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
 import { cn } from '../lib/utils';
+import logo from '../assets/logo.png';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -48,10 +49,9 @@ export default function Navbar() {
         >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zorvyn-blue/50 glow-blue">
             <img 
-              src="https://storage.googleapis.com/m-infra.appspot.com/public/res/ais/fbyrzk6swjzhjvmk6a2uaz/input_file_1.png" 
+              src={logo} 
               alt="Emmanuel Aidoo Logo" 
               className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
           <span className="hidden sm:block">Emmanuel Aidoo</span>

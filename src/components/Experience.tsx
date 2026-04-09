@@ -36,7 +36,13 @@ export default function Experience() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-br from-zorvyn-purple/10 via-transparent to-zorvyn-blue/10 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8"
+        >
           <div className="max-w-2xl">
             <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
               Professional Journey
@@ -48,7 +54,7 @@ export default function Experience() {
           <p className="text-white/40 max-w-sm text-sm leading-relaxed">
             A track record of defending critical infrastructure and orchestrating complex incident responses.
           </p>
-        </div>
+        </motion.div>
 
         <div className="relative grid grid-cols-1 gap-6">
           {/* Vertical Timeline Line */}

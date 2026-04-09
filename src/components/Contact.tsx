@@ -4,6 +4,8 @@ import { Mail, Linkedin, Send, CheckCircle } from 'lucide-react';
 
 export default function Contact() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({ name: '', email: '', message: '' });
 
@@ -33,13 +35,40 @@ export default function Contact() {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      // Simulate form submission
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setIsSubmitted(false), 5000);
+      setStatus('loading');
+      setErrorMessage('');
+      
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setIsSubmitted(true);
+          setStatus('success');
+          setFormData({ name: '', email: '', message: '' });
+          setTimeout(() => {
+            setIsSubmitted(false);
+            setStatus('idle');
+          }, 5000);
+        } else {
+          setStatus('error');
+          setErrorMessage(data.error || 'Failed to send message');
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        setStatus('error');
+        setErrorMessage('Network error. Please try again later.');
+      }
     }
   };
 
@@ -61,7 +90,8 @@ export default function Contact() {
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
             <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-6 block font-semibold">
               Contact
@@ -98,7 +128,8 @@ export default function Contact() {
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className="glass-card p-10 rounded-3xl relative"
           >
             <AnimatePresence>
@@ -194,8 +225,32 @@ export default function Contact() {
                 />
                 {errors.message && <p className="text-[10px] text-red-500 ml-1">{errors.message}</p>}
               </div>
-              <button type="submit" className="w-full py-5 bg-white text-zorvyn-black font-bold rounded-2xl hover:bg-zorvyn-blue hover:text-white transition-all duration-500 flex items-center justify-center gap-2 group">
-                Send Message <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              
+              {status === 'error' && (
+                <p className="text-xs text-red-500 text-center bg-red-500/10 py-3 rounded-xl border border-red-500/20">
+                  {errorMessage}
+                </p>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={status === 'loading'}
+                className="w-full py-5 bg-white text-zorvyn-black font-bold rounded-2xl hover:bg-zorvyn-blue hover:text-white transition-all duration-500 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {status === 'loading' ? (
+                  <span className="flex items-center gap-2">
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-zorvyn-black border-t-transparent rounded-full"
+                    />
+                    Transmitting...
+                  </span>
+                ) : (
+                  <>
+                    Send Message <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </>
+                )}
               </button>
             </form>
           </motion.div>

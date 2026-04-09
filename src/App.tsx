@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Services from './components/Services';
 import Experience from './components/Experience';
+import Volunteering from './components/Volunteering';
 import Certifications from './components/Certifications';
 import TechStack from './components/TechStack';
 import Projects from './components/Projects';
@@ -61,6 +62,7 @@ export default function App() {
         <About />
         <Services />
         <Experience />
+        <Volunteering />
         <Certifications />
         <Projects />
         <Testimonials />
