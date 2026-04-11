@@ -33,17 +33,33 @@ async function startServer() {
     }
 
     try {
+      console.log(`Attempting to send email from: ${process.env.EMAIL_USER} to: aidooemmanuel038@gmail.com`);
+      
       const transporter = nodemailer.createTransport({
-        service: "gmail", // You can change this to your preferred service
+        service: "gmail",
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS,
         },
       });
 
+      // Verify connection configuration
+      try {
+        await transporter.verify();
+        console.log("SMTP connection verified successfully");
+      } catch (verifyError: any) {
+        console.error("SMTP Verification Failed:", verifyError.message);
+        if (verifyError.message.includes('535')) {
+          return res.status(500).json({ 
+            error: "Authentication Failed: Gmail rejected your credentials. You MUST use a 16-character 'App Password', not your regular Gmail password. Please check your AI Studio Secrets." 
+          });
+        }
+        throw verifyError;
+      }
+
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: "rforson418@gmail.com", // User's email from runtime context
+        to: "aidooemmanuel038@gmail.com",
         subject: `New Portfolio Message from ${name}`,
         text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
         replyTo: email,
@@ -60,9 +76,16 @@ async function startServer() {
 
       await transporter.sendMail(mailOptions);
       res.status(200).json({ success: true, message: "Message sent successfully!" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending email:", error);
-      res.status(500).json({ error: "Failed to send message. Please try again later." });
+      
+      let errorMessage = "Failed to send message. Please try again later.";
+      
+      if (error.code === 'EAUTH' || (error.response && error.response.includes('535'))) {
+        errorMessage = "Email authentication failed. If using Gmail, please ensure you are using an 'App Password' and not your regular password.";
+      }
+      
+      res.status(500).json({ error: errorMessage });
     }
   });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
+import profile1 from '../assets/profile1.png';
 
 export default function Hero() {
   return (
@@ -62,11 +63,12 @@ export default function Hero() {
         ))}
       </div>
 
-      <div className="relative z-10 text-center max-w-5xl px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="text-left"
         >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -78,16 +80,17 @@ export default function Hero() {
             <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white/60">Available for Strategic Operations</span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.1] text-white">
-            Securing Digital Infrastructure with <br />
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] text-white">
+            Securing Digital <br />
+            Infrastructure with <br />
             <span className="text-gradient">Intelligence & Precision</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-white/50 font-light max-w-2xl mx-auto leading-relaxed mb-12 tracking-wide">
+          <p className="text-lg text-white/50 font-light max-w-xl leading-relaxed mb-12 tracking-wide">
             Emmanuel Aidoo is a Senior SOC Analyst with years of experience in threat detection, incident response, and security automation.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             <motion.a
               href="#projects"
               whileHover={{ scale: 1.02 }}
@@ -104,6 +107,44 @@ export default function Hero() {
             >
               Contact Me
             </motion.a>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, x: 30 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="hidden lg:block relative"
+        >
+          <div className="relative aspect-square max-w-[500px] ml-auto">
+            <div className="absolute inset-0 bg-gradient-to-br from-zorvyn-blue/20 to-zorvyn-purple/20 rounded-full blur-[80px] animate-pulse" />
+            <div className="relative h-full w-full rounded-[3rem] overflow-hidden border border-white/10 glow-blue">
+              <img 
+                src={profile1} 
+                alt="Emmanuel Aidoo" 
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black/60 via-transparent to-transparent" />
+            </div>
+            
+            {/* Floating Stats or Badges */}
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-6 -left-6 p-4 bg-zorvyn-black/80 backdrop-blur-md border border-white/10 rounded-2xl"
+            >
+              <div className="text-zorvyn-blue font-bold text-xl">5+</div>
+              <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Years Exp</div>
+            </motion.div>
+            
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-6 -right-6 p-4 bg-zorvyn-black/80 backdrop-blur-md border border-white/10 rounded-2xl"
+            >
+              <div className="text-zorvyn-purple font-bold text-xl">1.2k+</div>
+              <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Incidents</div>
+            </motion.div>
           </div>
         </motion.div>
       </div>

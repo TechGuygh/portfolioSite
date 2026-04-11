@@ -1,163 +1,201 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Award, ExternalLink } from 'lucide-react';
+import { Award, X, ChevronLeft, ChevronRight, Maximize2, Calendar, Building2, Fingerprint } from 'lucide-react';
 import { CERTIFICATIONS } from '../constants';
 import { cn } from '../lib/utils';
 
-const CATEGORIES = ['All', 'Cybersecurity', 'IT Support'];
-
 export default function Certifications() {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedCertIndex, setSelectedCertIndex] = useState<number | null>(null);
 
-  const filteredCerts = CERTIFICATIONS.filter(
-    (cert) => activeCategory === 'All' || cert.category === activeCategory
-  );
+  const openLightbox = (index: number) => setSelectedCertIndex(index);
+  const closeLightbox = () => setSelectedCertIndex(null);
+
+  const nextCert = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedCertIndex !== null) {
+      setSelectedCertIndex((selectedCertIndex + 1) % CERTIFICATIONS.length);
+    }
+  };
+
+  const prevCert = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedCertIndex !== null) {
+      setSelectedCertIndex((selectedCertIndex - 1 + CERTIFICATIONS.length) % CERTIFICATIONS.length);
+    }
+  };
 
   return (
-    <section id="certifications" className="py-24 px-6 relative overflow-hidden">
+    <section id="certifications" className="py-32 px-6 relative overflow-hidden">
       {/* Background Accents */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-zorvyn-blue/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-zorvyn-blue/5 blur-[150px] rounded-full pointer-events-none" />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+        <div className="text-center mb-20">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-              Certifications & <span className="text-zorvyn-blue glow-text">Credentials</span>
-            </h2>
-            <p className="text-white/60 max-w-xl text-lg">
-              Validated expertise in cybersecurity and IT systems through industry-recognized standards.
-            </p>
-          </motion.div>
-
-          {/* Filter Tabs */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex flex-wrap gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl"
+            transition={{ duration: 0.8 }}
           >
-            {CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={cn(
-                  "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative",
-                  activeCategory === category 
-                    ? "text-white" 
-                    : "text-white/40 hover:text-white/70"
-                )}
-              >
-                {activeCategory === category && (
-                  <motion.div
-                    layoutId="active-tab"
-                    className="absolute inset-0 bg-zorvyn-blue/20 border border-zorvyn-blue/30 rounded-xl"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <span className="relative z-10">{category}</span>
-              </button>
-            ))}
+            <span className="text-zorvyn-blue text-xs font-bold uppercase tracking-[0.4em] mb-4 block">
+              Verified Credentials
+            </span>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6">
+              Certifications & <span className="text-white/40">Achievements</span>
+            </h2>
+            <p className="text-white/60 max-w-2xl mx-auto text-lg">
+              Professional milestones and industry-recognized standards validating expertise in cybersecurity and IT operations.
+            </p>
           </motion.div>
         </div>
 
-        <motion.div 
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredCerts.map((cert, index) => (
-              <motion.div
-                key={cert.name}
-                layout
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                whileHover={{ y: -8 }}
-                className="group p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl hover:border-zorvyn-blue/50 transition-all duration-500 relative overflow-hidden"
-              >
-                {/* Blurred Background Image */}
-                {cert.bgImage && (
-                  <div className="absolute inset-0 z-0 opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-1000 pointer-events-none overflow-hidden">
-                    <motion.img 
-                      src={cert.bgImage} 
-                      alt="" 
-                      animate={{ 
-                        scale: [1.1, 1.2, 1.1],
-                        rotate: [0, 2, 0]
-                      }}
-                      transition={{ 
-                        duration: 20, 
-                        repeat: Infinity, 
-                        ease: "linear" 
-                      }}
-                      className="w-full h-full object-cover blur-3xl grayscale mix-blend-overlay"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                )}
+        {/* Grid Gallery */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {CERTIFICATIONS.map((cert, index) => (
+            <motion.div
+              key={cert.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer bg-white/5 border border-white/10"
+            >
+              {/* Image Container */}
+              <div className="absolute inset-0">
+                <motion.img
+                  src={cert.image}
+                  alt={cert.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black via-zorvyn-black/40 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
+              </div>
 
-                {/* Shimmer Effect */}
-                <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
-                
-                {/* Gradient Border Glow */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                  <div className="absolute inset-0 p-[1px] bg-gradient-to-br from-zorvyn-blue/50 via-zorvyn-purple/50 to-zorvyn-blue/50 rounded-3xl [mask-image:linear-gradient(white,white)_content-box,linear-gradient(white,white)] [mask-composite:exclude]" />
+              {/* Content Overlay */}
+              <div className="absolute inset-0 p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                <div className="flex items-center gap-2 text-zorvyn-blue mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <Award size={16} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">{cert.issuer}</span>
                 </div>
-
-                {/* Hover Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-zorvyn-blue/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-3 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 overflow-hidden">
-                      {cert.logo ? (
-                        <img 
-                          src={cert.logo} 
-                          alt={cert.issuer} 
-                          className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-500"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <cert.icon className="text-zorvyn-blue" size={28} />
-                      )}
-                    </div>
-                    <span className="text-xs font-bold tracking-widest text-white/30 uppercase bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                      {cert.year}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-zorvyn-blue transition-colors duration-300">
-                    {cert.name}
-                  </h3>
-                  <p className="text-white/50 text-sm mb-8 font-medium">
-                    {cert.issuer}
-                  </p>
-
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2 text-xs font-bold text-zorvyn-blue/80 uppercase tracking-wider">
-                      <Award size={14} />
-                      Verified
-                    </div>
-                    <button className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-zorvyn-blue hover:border-zorvyn-blue/30 transition-all duration-300 group/btn">
-                      <ExternalLink size={18} className="group-hover/btn:scale-110 transition-transform" />
-                    </button>
+                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-zorvyn-blue transition-colors duration-300">
+                  {cert.title}
+                </h3>
+                <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                  <span className="text-white/40 text-xs font-medium">{cert.year}</span>
+                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 group-hover:text-white transition-colors">
+                    <Maximize2 size={18} />
                   </div>
                 </div>
+              </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-zorvyn-blue/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+              {/* Glass Border Effect */}
+              <div className="absolute inset-0 border border-white/10 rounded-3xl pointer-events-none group-hover:border-zorvyn-blue/30 transition-colors duration-500" />
+            </motion.div>
+          ))}
+        </div>
       </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedCertIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-zorvyn-black/95 backdrop-blur-2xl"
+            onClick={closeLightbox}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-6xl w-full max-h-[90vh] flex flex-col md:flex-row gap-8 bg-[#0a0a0a] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={closeLightbox}
+                className="absolute top-6 right-6 z-20 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/60 hover:text-white transition-all duration-300"
+              >
+                <X size={24} />
+              </button>
+
+              {/* Image Section */}
+              <div className="relative flex-1 bg-black/40 flex items-center justify-center overflow-hidden group/modal">
+                <img
+                  src={CERTIFICATIONS[selectedCertIndex].image}
+                  alt={CERTIFICATIONS[selectedCertIndex].title}
+                  className="w-full h-full object-contain p-4 md:p-12"
+                  referrerPolicy="no-referrer"
+                />
+                
+                {/* Navigation Buttons */}
+                <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                  <button
+                    onClick={prevCert}
+                    className="p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-zorvyn-blue/20 transition-all duration-300 pointer-events-auto"
+                  >
+                    <ChevronLeft size={28} />
+                  </button>
+                  <button
+                    onClick={nextCert}
+                    className="p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-zorvyn-blue/20 transition-all duration-300 pointer-events-auto"
+                  >
+                    <ChevronRight size={28} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="w-full md:w-[400px] p-8 md:p-12 flex flex-col border-t md:border-t-0 md:border-l border-white/5">
+                <div className="mb-10">
+                  <div className="flex items-center gap-3 text-zorvyn-blue mb-6">
+                    <Award size={24} className="glow-blue" />
+                    <span className="text-xs font-bold uppercase tracking-[0.3em]">Official Credential</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-4 leading-tight">
+                    {CERTIFICATIONS[selectedCertIndex].title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-white/40 text-sm mb-8">
+                    <Building2 size={16} />
+                    <span>{CERTIFICATIONS[selectedCertIndex].issuer}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-8 flex-grow">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zorvyn-blue">
+                      <Calendar size={20} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1 font-bold">Issue Date</span>
+                      <span className="text-white font-medium">{CERTIFICATIONS[selectedCertIndex].year}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zorvyn-blue">
+                      <Fingerprint size={20} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1 font-bold">Credential ID</span>
+                      <code className="text-zorvyn-blue font-mono text-sm">{CERTIFICATIONS[selectedCertIndex].credentialId}</code>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-12 pt-8 border-t border-white/5">
+                  <button className="w-full py-4 bg-white text-zorvyn-black font-bold rounded-2xl hover:bg-zorvyn-blue hover:text-white transition-all duration-500 text-xs uppercase tracking-widest shadow-xl">
+                    Verify Credential
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

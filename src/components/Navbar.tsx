@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
 import { cn } from '../lib/utils';
-import logo from '../assets/logo.png';
+import profile1 from '../assets/profile1.png';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -49,8 +49,8 @@ export default function Navbar() {
         >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zorvyn-blue/50 glow-blue">
             <img 
-              src={logo} 
-              alt="Emmanuel Aidoo Logo" 
+              src={profile1} 
+              alt="Emmanuel Aidoo Profile" 
               className="w-full h-full object-cover"
             />
           </div>

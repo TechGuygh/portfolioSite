@@ -138,18 +138,12 @@ export default function App() {
             </div>
 
             {/* Bottom Footer Section */}
-            <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-              <p className="text-xs text-white/40">
+            <div className="pt-8 border-t border-white/5 flex flex-col items-center justify-center gap-6 text-center">
+              <p className="text-xs text-white/40 p-0">
                 © 2026 Emmanuel Aidoo. All rights reserved.
               </p>
               
               <div className="flex items-center gap-8">
-                <div className="flex items-center gap-6 text-xs text-white/40">
-                  <a href="#" className="hover:text-white transition-colors">Terms</a>
-                  <span className="w-1 h-1 bg-white/20 rounded-full" />
-                  <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                </div>
-                
                 <button 
                   onClick={scrollToTop}
                   className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group"

@@ -3,53 +3,72 @@ import { Shield, Terminal, Activity, Lock, Cpu, Search, AlertTriangle, FileText,
 
 import profile1 from './assets/profile1.png';
 import logo from './assets/logo.png';
+import flutterflowLead from './assets/volunteeri_images/Flutterflow Student Ambassadors_Technical Lead.png';
+import flutterflow from './assets/volunteeri_images/Flutterflow.png';
+import cyberAwareness from './assets/volunteeri_images/cybersecurity_awareness1.jpg';
+
+import ciscoNetworking from './certificates/Cisco_networking.jpg';
+import ciscoCyberops from './certificates/cisco_Cyberops.jpg';
+import oneMillionCoders from './certificates/One_million_coders.jpg';
+import googleCybersecurity from './certificates/Google_Cybersecurity..jpg';
 
 export const NAV_LINKS = [
   { name: 'Home', href: '#hero' },
   { name: 'About', href: '#about' },
-  { name: 'Services', href: '#services' },
   { name: 'Experience', href: '#experience' },
   { name: 'Volunteering', href: '#volunteering' },
+  { name: 'Certificates', href: '#certifications' },
   { name: 'Projects', href: '#projects' },
-  { name: 'Contact', href: '#contact' },
 ];
 
 export const CERTIFICATIONS = [
   {
-    name: 'CompTIA Security+',
+    title: 'CompTIA Security+',
     issuer: 'CompTIA',
     year: '2023',
     category: 'Cybersecurity',
-    icon: Shield,
-    logo: 'https://www.vectorlogo.zone/logos/comptia/comptia-icon.svg',
-    bgImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
+    image: ciscoNetworking,
+    credentialId: 'COMP-SEC-123456',
   },
   {
-    name: 'Certified SOC Analyst (CSA)',
+    title: 'Certified SOC Analyst (CSA)',
     issuer: 'EC-Council',
     year: '2024',
     category: 'Cybersecurity',
-    icon: Search,
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/EC-Council_Logo.svg/1200px-EC-Council_Logo.svg.png',
-    bgImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800',
+    image: ciscoCyberops,
+    credentialId: 'ECC-CSA-987654',
   },
   {
-    name: 'Microsoft Security Operations Analyst (SC-200)',
+    title: 'Microsoft Security Operations Analyst (SC-200)',
     issuer: 'Microsoft',
     year: '2024',
     category: 'Cybersecurity',
-    icon: Lock,
-    logo: 'https://www.vectorlogo.zone/logos/microsoft/microsoft-icon.svg',
-    bgImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=800',
+    image: oneMillionCoders,
+    credentialId: 'MSFT-SC200-555555',
   },
   {
-    name: 'Google IT Support Professional Certificate',
+    title: 'Google IT Support Professional Certificate',
     issuer: 'Google',
     year: '2022',
     category: 'IT Support',
-    icon: Cpu,
-    logo: 'https://www.vectorlogo.zone/logos/google/google-icon.svg',
-    bgImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
+    image: googleCybersecurity,
+    credentialId: 'GGL-IT-000111',
+  },
+  {
+    title: 'AWS Certified Security - Specialty',
+    issuer: 'Amazon Web Services',
+    year: '2024',
+    category: 'Cybersecurity',
+    image: ciscoNetworking,
+    credentialId: 'AWS-SEC-777888',
+  },
+  {
+    title: 'Cisco Certified CyberOps Associate',
+    issuer: 'Cisco',
+    year: '2023',
+    category: 'Cybersecurity',
+    image: ciscoCyberops,
+    credentialId: 'CSCO-CYB-333444',
   },
 ];
 
@@ -59,6 +78,24 @@ export const STATS = [
   { label: 'Tools Mastered', value: '25+' },
   { label: 'Uptime Maintained', value: '99.9%' },
 ];
+
+export const KEY_SKILLS = {
+  technical: [
+    { name: 'Incident Response', icon: Zap },
+    { name: 'SIEM (Splunk/Sentinel)', icon: Search },
+    { name: 'Threat Hunting', icon: Shield },
+    { name: 'Malware Analysis', icon: AlertTriangle },
+    { name: 'Network Security', icon: Lock },
+    { name: 'Python Automation', icon: Terminal },
+  ],
+  soft: [
+    { name: 'Analytical Thinking', icon: Eye },
+    { name: 'Communication', icon: MessageSquare },
+    { name: 'Problem Solving', icon: Cpu },
+    { name: 'Team Collaboration', icon: Activity },
+    { name: 'Attention to Detail', icon: Search },
+  ]
+};
 
 export const SERVICES = [
   {
@@ -171,7 +208,7 @@ export const VOLUNTEERING = [
     description: 'Mentoring aspiring cybersecurity professionals in threat detection and incident response fundamentals.',
     impact: 'Successfully guided 15+ mentees into entry-level SOC roles within 6 months.',
     icon: Shield,
-    image: profile1,
+    image: flutterflowLead,
     stats: [
       { label: 'Mentees', value: '15+' },
       { label: 'Success', value: '100%' },
@@ -185,7 +222,7 @@ export const VOLUNTEERING = [
     description: 'Contributed to identifying and documenting vulnerabilities in widely used open-source libraries.',
     impact: 'Reported 5 critical vulnerabilities, improving the security posture of thousands of downstream projects.',
     icon: Search,
-    image: logo,
+    image: flutterflow,
     stats: [
       { label: 'Vulns', value: '5' },
       { label: 'Projects', value: '1k+' },
@@ -199,7 +236,7 @@ export const VOLUNTEERING = [
     description: 'Organized and led cybersecurity awareness workshops for high school students.',
     impact: 'Reached over 500 students, increasing interest in cybersecurity careers by 30% based on post-workshop surveys.',
     icon: Cpu,
-    image: profile1,
+    image: cyberAwareness,
     stats: [
       { label: 'Students', value: '500+' },
       { label: 'Events', value: '12' },
@@ -213,7 +250,7 @@ export const VOLUNTEERING = [
     description: 'Managed a local chapter of 100+ tech enthusiasts, organizing monthly meetups and technical talks.',
     impact: 'Grew membership by 50% and secured sponsorships from 3 local tech firms.',
     icon: Award,
-    image: logo,
+    image: flutterflow,
     stats: [
       { label: 'Members', value: '100+' },
       { label: 'Meetups', value: '24' },

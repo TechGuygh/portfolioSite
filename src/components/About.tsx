@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { STATS } from '../constants';
+import { STATS, KEY_SKILLS } from '../constants';
 import profile1 from '../assets/profile1.png';
 
 export default function About() {
@@ -30,7 +30,7 @@ export default function About() {
                 This experience sharpened my ability to identify system vulnerabilities and respond quickly to technical issues — skills that now enhance my effectiveness as a SOC Analyst.
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-16">
                 {STATS.map((stat, i) => (
                   <motion.div 
                     key={i}
@@ -43,6 +43,47 @@ export default function About() {
                     <div className="text-[10px] uppercase tracking-widest text-white/30">{stat.label}</div>
                   </motion.div>
                 ))}
+              </div>
+
+              {/* Key Skills Section */}
+              <div className="space-y-10">
+                <div>
+                  <h3 className="text-xs uppercase tracking-[0.3em] text-zorvyn-blue mb-6 font-bold">Technical Proficiencies</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {KEY_SKILLS.technical.map((skill, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * i }}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-zorvyn-blue/50 transition-colors group"
+                      >
+                        <skill.icon size={14} className="text-zorvyn-blue group-hover:scale-110 transition-transform" />
+                        <span className="text-xs text-white/80 font-medium">{skill.name}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs uppercase tracking-[0.3em] text-zorvyn-purple mb-6 font-bold">Soft Skills</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {KEY_SKILLS.soft.map((skill, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * i }}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-zorvyn-purple/50 transition-colors group"
+                      >
+                        <skill.icon size={14} className="text-zorvyn-purple group-hover:scale-110 transition-transform" />
+                        <span className="text-xs text-white/80 font-medium">{skill.name}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
 
