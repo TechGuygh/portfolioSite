@@ -28,47 +28,48 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4 }}
-      className="group relative flex flex-col h-full glass-card rounded-3xl overflow-hidden"
+      className="group relative flex flex-col h-full glass-card rounded-2xl overflow-hidden"
     >
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative h-48 overflow-hidden">
         <motion.img
           style={{ y: isHydrated ? y : 0 }}
           src={project.image}
           alt={project.title}
+          loading="lazy"
           className="absolute inset-0 w-full h-[120%] object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-zorvyn-black/60 group-hover:bg-zorvyn-blue/20 transition-colors duration-500" />
         <div className="absolute top-4 left-4">
-          <span className="text-[9px] uppercase tracking-widest px-3 py-1 bg-zorvyn-black/80 backdrop-blur-md border border-white/10 rounded-full font-bold">
+          <span className="text-[8px] uppercase tracking-widest px-2.5 py-1 bg-zorvyn-black/80 backdrop-blur-md border border-white/10 rounded-full font-bold">
             {project.category}
           </span>
         </div>
       </div>
 
-      <div className="p-8 flex flex-col flex-grow">
-        <h3 className="text-2xl font-bold mb-4 group-hover:text-zorvyn-blue transition-colors">
+      <div className="p-6 flex flex-col flex-grow">
+        <h3 className="text-xl font-bold mb-4 group-hover:text-zorvyn-blue transition-colors">
           {project.title}
         </h3>
         
-        <div className="space-y-4 mb-8 flex-grow">
+        <div className="space-y-4 mb-6 flex-grow">
           <div>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-zorvyn-blue mb-1.5 block font-bold">The Problem</span>
-            <p className="text-xs text-white/50 leading-relaxed line-clamp-2">{project.problem}</p>
+            <span className="text-[8px] uppercase tracking-[0.2em] text-zorvyn-blue mb-1.5 block font-bold">The Problem</span>
+            <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{project.problem}</p>
           </div>
           <div>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-zorvyn-blue mb-1.5 block font-bold">The Solution</span>
-            <p className="text-xs text-white/50 leading-relaxed line-clamp-2">{project.solution}</p>
+            <span className="text-[8px] uppercase tracking-[0.2em] text-zorvyn-blue mb-1.5 block font-bold">The Solution</span>
+            <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{project.solution}</p>
           </div>
           <div>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">The Result</span>
-            <p className="text-xs text-white/80 font-medium leading-relaxed italic border-l-2 border-zorvyn-blue/30 pl-3 line-clamp-2">"{project.result}"</p>
+            <span className="text-[8px] uppercase tracking-[0.2em] text-zorvyn-blue mb-1.5 block font-bold">The Result</span>
+            <p className="text-[11px] text-white/80 font-medium leading-relaxed italic border-l-2 border-zorvyn-blue/30 pl-3 line-clamp-2">"{project.result}"</p>
           </div>
           <div>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">Skills Used</span>
+            <span className="text-[8px] uppercase tracking-[0.2em] text-zorvyn-blue mb-2 block font-bold">Skills Used</span>
             <div className="flex flex-wrap gap-1.5">
               {project.technologies?.map((tech) => (
-                <span key={tech} className="text-[9px] px-2 py-0.5 bg-zorvyn-blue/10 border border-zorvyn-blue/20 rounded-md text-zorvyn-blue font-medium">
+                <span key={tech} className="text-[8px] px-2 py-0.5 bg-zorvyn-blue/10 border border-zorvyn-blue/20 rounded-md text-zorvyn-blue font-medium">
                   {tech}
                 </span>
               ))}
@@ -76,8 +77,8 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
           </div>
         </div>
 
-        <button className="mt-auto flex items-center gap-2 text-[9px] uppercase tracking-widest font-bold text-white/40 group-hover:text-white transition-colors">
-          View Case Study <ArrowUpRight size={12} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+        <button className="mt-auto flex items-center gap-2 text-[8px] uppercase tracking-widest font-bold text-white/40 group-hover:text-white transition-colors">
+          View Case Study <ArrowUpRight size={10} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
         </button>
       </div>
     </motion.div>
@@ -93,25 +94,25 @@ export default function Projects() {
     : PROJECTS.filter(p => p.category === activeCategory);
 
   return (
-    <section id="projects" className="py-32 px-6 relative">
+    <section id="projects" className="py-24 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8"
+          className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8"
         >
           <div>
-            <span className="text-xs uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-zorvyn-blue mb-4 block font-semibold">
               Intel Reports
             </span>
-            <h2 className="text-4xl md:text-6xl font-bold">
+            <h2 className="text-3xl md:text-5xl font-bold">
               Strategic <span className="text-white/40">Case Files</span>
             </h2>
           </div>
           <div className="flex flex-col gap-6">
-            <p className="text-white/40 max-w-sm text-sm leading-relaxed">
+            <p className="text-white/40 max-w-sm text-xs leading-relaxed">
               Deep-dive analysis of security challenges, implemented solutions, and measurable outcomes.
             </p>
             
@@ -121,7 +122,7 @@ export default function Projects() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`relative px-6 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all duration-300 border ${
+                  className={`relative px-5 py-1.5 rounded-full text-[9px] uppercase tracking-widest font-bold transition-all duration-300 border ${
                     activeCategory === cat 
                       ? 'border-zorvyn-blue text-white' 
                       : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white'
@@ -143,7 +144,7 @@ export default function Projects() {
 
         <motion.div 
           layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, i) => (

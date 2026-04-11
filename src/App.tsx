@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion } from 'motion/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import About from './components/About';
-import Services from './components/Services';
-import Experience from './components/Experience';
-import Volunteering from './components/Volunteering';
-import Certifications from './components/Certifications';
 import TechStack from './components/TechStack';
-import Projects from './components/Projects';
-import Testimonials from './components/Testimonials';
-import Contact from './components/Contact';
 import { Copy, ArrowUp, Send, Twitter, Facebook, MessageSquare, BookOpen } from 'lucide-react';
+
+// Lazy load sections below the fold
+const About = lazy(() => import('./components/About'));
+const Services = lazy(() => import('./components/Services'));
+const Experience = lazy(() => import('./components/Experience'));
+const Volunteering = lazy(() => import('./components/Volunteering'));
+const Certifications = lazy(() => import('./components/Certifications'));
+const Projects = lazy(() => import('./components/Projects'));
+const Testimonials = lazy(() => import('./components/Testimonials'));
+const Contact = lazy(() => import('./components/Contact'));
+
+// Loading fallback
+const SectionLoader = () => (
+  <div className="py-32 flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-zorvyn-blue/20 border-t-zorvyn-blue rounded-full animate-spin" />
+  </div>
+);
 
 export default function App() {
   const [copied, setCopied] = useState(false);
@@ -57,18 +66,21 @@ export default function App() {
         <Navbar />
         
         <main>
-        <Hero />
-        <TechStack />
-        <About />
-        <Services />
-        <Experience />
-        <Volunteering />
-        <Certifications />
-        <Projects />
-        <Testimonials />
-        <Contact />
-        
-        {/* Footer */}
+          <Hero />
+          <TechStack />
+          
+          <Suspense fallback={<SectionLoader />}>
+            <About />
+            <Services />
+            <Experience />
+            <Volunteering />
+            <Certifications />
+            <Projects />
+            <Testimonials />
+            <Contact />
+          </Suspense>
+          
+          {/* Footer */}
         <footer className="py-12 px-6 border-t border-white/5 relative z-10">
           <div className="max-w-7xl mx-auto">
             {/* Top Footer Section */}
