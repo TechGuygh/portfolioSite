@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
-import profile1 from '../assets/profile1.png';
+import secured from '../assets/secured.png';
 
 export default function Hero() {
   return (
@@ -118,13 +118,13 @@ export default function Hero() {
         >
           <div className="relative aspect-square max-w-[420px] ml-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-zorvyn-blue/20 to-zorvyn-purple/20 rounded-full blur-[60px] animate-pulse" />
-            <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden border border-white/10 glow-blue">
+            <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden border border-white/10 glow-blue group/hero">
               <img 
-                src={profile1} 
+                src={secured} 
                 alt="Emmanuel Aidoo" 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                className="w-full h-full object-cover transition-all duration-700 group-hover/hero:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-zorvyn-black/60 via-transparent to-transparent opacity-60 group-hover/hero:opacity-40 transition-opacity duration-500" />
             </div>
             
             {/* Floating Stats or Badges */}

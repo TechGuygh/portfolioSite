@@ -196,7 +196,7 @@ export const VOLUNTEERING = [
     description: 'Mentoring aspiring cybersecurity professionals in threat detection and incident response fundamentals.',
     impact: 'Successfully guided 15+ mentees into entry-level SOC roles within 6 months.',
     icon: Shield,
-    image: flutterflowLead,
+    images: [flutterflowLead, flutterflow, cyberAwareness],
     stats: [
       { label: 'Mentees', value: '15+' },
       { label: 'Success', value: '100%' },
@@ -210,7 +210,7 @@ export const VOLUNTEERING = [
     description: 'Contributed to identifying and documenting vulnerabilities in widely used open-source libraries.',
     impact: 'Reported 5 critical vulnerabilities, improving the security posture of thousands of downstream projects.',
     icon: Search,
-    image: flutterflow,
+    images: [flutterflow, cyberAwareness],
     stats: [
       { label: 'Vulns', value: '5' },
       { label: 'Projects', value: '1k+' },
@@ -224,7 +224,7 @@ export const VOLUNTEERING = [
     description: 'Organized and led cybersecurity awareness workshops for high school students.',
     impact: 'Reached over 500 students, increasing interest in cybersecurity careers by 30% based on post-workshop surveys.',
     icon: Cpu,
-    image: cyberAwareness,
+    images: [cyberAwareness],
     stats: [
       { label: 'Students', value: '500+' },
       { label: 'Events', value: '12' },
@@ -238,7 +238,7 @@ export const VOLUNTEERING = [
     description: 'Managed a local chapter of 100+ tech enthusiasts, organizing monthly meetups and technical talks.',
     impact: 'Grew membership by 50% and secured sponsorships from 3 local tech firms.',
     icon: Award,
-    image: flutterflow,
+    images: [flutterflow],
     stats: [
       { label: 'Members', value: '100+' },
       { label: 'Meetups', value: '24' },

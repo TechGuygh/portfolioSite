@@ -50,7 +50,7 @@ export default function Certifications() {
         </div>
 
         {/* Grid Gallery */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {CERTIFICATIONS.map((cert, index) => (
             <motion.div
               key={cert.title}
@@ -59,7 +59,7 @@ export default function Certifications() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               onClick={() => openLightbox(index)}
-              className="group relative aspect-[4/5] lg:aspect-[16/9] rounded-2xl overflow-hidden cursor-pointer bg-white/5 border border-white/10"
+              className="group relative aspect-[4/5] sm:aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-white/5 border border-white/10"
             >
               {/* Image Container */}
               <div className="absolute inset-0">
@@ -75,24 +75,24 @@ export default function Certifications() {
               </div>
 
               {/* Content Overlay */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <div className="flex items-center gap-2 text-zorvyn-blue mb-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  <Award size={14} />
-                  <span className="text-[9px] font-bold uppercase tracking-widest">{cert.issuer}</span>
+              <div className="absolute inset-0 p-5 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                <div className="flex items-center gap-2 text-zorvyn-blue mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <Award size={12} />
+                  <span className="text-[8px] font-bold uppercase tracking-widest">{cert.issuer}</span>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-zorvyn-blue transition-colors duration-300">
+                <h3 className="text-base font-bold text-white mb-1.5 group-hover:text-zorvyn-blue transition-colors duration-300 line-clamp-1">
                   {cert.title}
                 </h3>
                 <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                  <span className="text-white/40 text-[10px] font-medium">{cert.year}</span>
-                  <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 group-hover:text-white transition-colors">
-                    <Maximize2 size={16} />
+                  <span className="text-white/40 text-[9px] font-medium">{cert.year}</span>
+                  <div className="w-7 h-7 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 group-hover:text-white transition-colors">
+                    <Maximize2 size={14} />
                   </div>
                 </div>
               </div>
 
               {/* Glass Border Effect */}
-              <div className="absolute inset-0 border border-white/10 rounded-2xl pointer-events-none group-hover:border-zorvyn-blue/30 transition-colors duration-500" />
+              <div className="absolute inset-0 border border-white/10 rounded-xl pointer-events-none group-hover:border-zorvyn-blue/30 transition-colors duration-500" />
             </motion.div>
           ))}
         </div>

@@ -8,33 +8,6 @@ export default function Experience() {
 
   return (
     <section id="experience" className="py-24 px-6 relative overflow-hidden">
-      {/* Background Gradients/Glows */}
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.1, 1],
-          opacity: [0.2, 0.3, 0.2] 
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 right-0 w-[500px] h-[500px] bg-zorvyn-purple/30 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4 pointer-events-none" 
-      />
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1] 
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zorvyn-blue/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 pointer-events-none" 
-      />
-      <motion.div 
-        animate={{ 
-          x: [-20, 20, -20],
-          y: [-20, 20, -20]
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-1/3 w-[300px] h-[300px] bg-zorvyn-purple/15 rounded-full blur-[80px] pointer-events-none" 
-      />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-br from-zorvyn-purple/10 via-transparent to-zorvyn-blue/10 pointer-events-none" />
-
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

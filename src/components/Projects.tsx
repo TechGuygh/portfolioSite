@@ -86,13 +86,6 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0], index: n
 }
 
 export default function Projects() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const categories = ['All', ...Array.from(new Set(PROJECTS.map(p => p.category)))];
-
-  const filteredProjects = activeCategory === 'All' 
-    ? PROJECTS 
-    : PROJECTS.filter(p => p.category === activeCategory);
-
   return (
     <section id="projects" className="py-24 px-6 relative">
       <div className="max-w-7xl mx-auto">
@@ -111,35 +104,6 @@ export default function Projects() {
               Strategic <span className="text-white/40">Case Files</span>
             </h2>
           </div>
-          <div className="flex flex-col gap-6">
-            <p className="text-white/40 max-w-sm text-xs leading-relaxed">
-              Deep-dive analysis of security challenges, implemented solutions, and measurable outcomes.
-            </p>
-            
-            {/* Filter UI */}
-            <div className="flex flex-wrap gap-3">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`relative px-5 py-1.5 rounded-full text-[9px] uppercase tracking-widest font-bold transition-all duration-300 border ${
-                    activeCategory === cat 
-                      ? 'border-zorvyn-blue text-white' 
-                      : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white'
-                  }`}
-                >
-                  {activeCategory === cat && (
-                    <motion.div
-                      layoutId="activeCategory"
-                      className="absolute inset-0 bg-zorvyn-blue rounded-full glow-blue -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
         </motion.div>
 
         <motion.div 
@@ -147,7 +111,7 @@ export default function Projects() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, i) => (
+            {PROJECTS.map((project, i) => (
               <ProjectCard key={project.title} project={project} index={i} />
             ))}
           </AnimatePresence>
