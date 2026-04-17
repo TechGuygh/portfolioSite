@@ -5,87 +5,138 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import validator from "validator";
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Pre-configured email target
+const CONTACT_EMAIL = "aidooemmanuel038@gmail.com";
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // 0. TRUST PROXY
+  // This is required when running behind a reverse proxy (like Nginx, Cloud Run, etc.)
+  // It allows Express and express-rate-limit to correctly identify the client's IP 
+  // address via headers like 'X-Forwarded-For'.
+  app.set("trust proxy", 1);
+
+  // 1. SECURITY HEADERS
+  // Helmet helps secure the app by setting various HTTP headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // Vite handles CSP in dev
+      crossOriginEmbedderPolicy: false,
+    })
+  );
+
+  // 2. CORS CONFIGURATION
+  // Restrict to your domain in production
   app.use(cors());
-  app.use(express.json());
+
+  // 3. BODY PARSING
+  // Limit payload size to prevent body-parsing based DoS attacks
+  app.use(express.json({ limit: "10kb" }));
+
+  // 4. RATE LIMITING
+  // Protect the contact endpoint from spam and automated attacks
+  const contactLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per window
+    message: { error: "Too many contact requests from this IP. Please try again in 15 minutes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
   // API Route for Contact Form
-  app.post("/api/contact", async (req, res) => {
+  app.post("/api/contact", contactLimiter, async (req, res) => {
+    // 5. INPUT SANITIZATION & VALIDATION
     const { name, email, message } = req.body;
 
+    // Check for existence
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: "Transmission failed: All fields are required." });
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email address" });
+    // Sanitize and validate inputs
+    const cleanName = validator.escape(String(name).trim());
+    const cleanEmail = validator.normalizeEmail(String(email).trim());
+    const cleanMessage = validator.escape(String(message).trim());
+
+    if (!cleanEmail || !validator.isEmail(cleanEmail)) {
+      return res.status(400).json({ error: "Invalid integrity check: Email address format is incorrect." });
+    }
+
+    if (cleanName.length < 2 || cleanName.length > 100) {
+      return res.status(400).json({ error: "Invalid integrity check: Name length out of bounds." });
+    }
+
+    if (cleanMessage.length < 10 || cleanMessage.length > 5000) {
+      return res.status(400).json({ error: "Invalid integrity check: Message length must be between 10 and 5000 characters." });
     }
 
     try {
-      console.log(`Attempting to send email from: ${process.env.EMAIL_USER} to: aidooemmanuel038@gmail.com`);
-      
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
+      // 6. CREDENTIAL VALIDATION
+      const user = process.env.EMAIL_USER;
+      const pass = process.env.EMAIL_PASS;
 
-      // Verify connection configuration
-      try {
-        await transporter.verify();
-        console.log("SMTP connection verified successfully");
-      } catch (verifyError: any) {
-        console.error("SMTP Verification Failed:", verifyError.message);
-        if (verifyError.message.includes('535')) {
-          return res.status(500).json({ 
-            error: "Authentication Failed: Gmail rejected your credentials. You MUST use a 16-character 'App Password', not your regular Gmail password. Please check your AI Studio Secrets." 
-          });
-        }
-        throw verifyError;
-      }
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: "aidooemmanuel038@gmail.com",
-        subject: `New Portfolio Message from ${name}`,
-        text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-        replyTo: email,
-      };
-
-      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.warn("Email credentials not set. Logging message to console instead.");
-        console.log("Message Details:", mailOptions);
+      if (!user || !pass) {
+        console.warn("[SECURITY WARN] Email credentials missing. Logging transmission to internal logs.");
+        console.log("Transmission Data:", { cleanName, cleanEmail, cleanMessage });
+        
+        // Return 200 in dev/mock scenarios to not break UI, 
+        // but real apps should handle this as a configuration error.
         return res.status(200).json({ 
           success: true, 
-          message: "Message received (Demo mode: credentials not configured)" 
+          message: "Transmission received. [DEBUG: SMTP Credentials Not Configured]" 
         });
       }
 
-      await transporter.sendMail(mailOptions);
-      res.status(200).json({ success: true, message: "Message sent successfully!" });
-    } catch (error: any) {
-      console.error("Error sending email:", error);
-      
-      let errorMessage = "Failed to send message. Please try again later.";
-      
-      if (error.code === 'EAUTH' || (error.response && error.response.includes('535'))) {
-        errorMessage = "Email authentication failed. If using Gmail, please ensure you are using an 'App Password' and not your regular password.";
+      // 7. SECURE SMTP CONFIGURATION
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: user,
+          pass: pass,
+        },
+      });
+
+      // Verify connection once per request (can be optimized by moving outside if traffic is high)
+      try {
+        await transporter.verify();
+      } catch (verifyError: any) {
+        console.error("[CRITICAL] SMTP Authentication Error:", verifyError.message);
+        return res.status(500).json({ 
+          error: "Auth Failure: The uplink to the mail server failed. Check App Passwords." 
+        });
       }
+
+      const mailOptions = {
+        from: user,
+        to: CONTACT_EMAIL,
+        subject: `[Portfolio] Secure Transmission from ${cleanName}`,
+        text: `Source Name: ${cleanName}\nSource Email: ${cleanEmail}\n\nPayload Content:\n${cleanMessage}`,
+        replyTo: cleanEmail,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[AUDIT] Email successfully transmitted from ${cleanEmail}`);
       
-      res.status(500).json({ error: errorMessage });
+      res.status(200).json({ success: true, message: "Transmission successful." });
+    } catch (error: any) {
+      // 8. DATA LEAK PREVENTION
+      // Never send full error stack to client
+      console.error("[SYSTEM ERROR] Internal Failure during transmission:", error);
+      
+      res.status(500).json({ 
+        error: "Internal server error. The packet could not be routed." 
+      });
     }
   });
 
@@ -105,7 +156,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`[SYSTEM] SOC Infrastructure Online at port ${PORT}`);
   });
 }
 

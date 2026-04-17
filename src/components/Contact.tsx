@@ -42,19 +42,33 @@ export default function Contact() {
       setErrorMessage('');
       
       try {
+        console.log('[CLIENT] Initiating secure transmission...');
         const response = await fetch('/api/contact', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
           body: JSON.stringify(formData),
         });
+
+        // Debug logging for developers
+        console.log(`[CLIENT] Uplink Status: ${response.status} ${response.statusText}`);
+
+        // Check if response is JSON to prevent parse errors
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const rawResponse = await response.text();
+          console.error('[CLIENT] Non-JSON payload detected:', rawResponse);
+          throw new Error('Incompatible response format from infrastructure.');
+        }
 
         const data = await response.json();
 
         if (response.ok) {
           setIsSubmitted(true);
           setStatus('success');
+          console.log('[CLIENT] Transmission verified.');
           setFormData({ name: '', email: '', message: '' });
           setTimeout(() => {
             setIsSubmitted(false);
@@ -62,12 +76,20 @@ export default function Contact() {
           }, 5000);
         } else {
           setStatus('error');
-          setErrorMessage(data.error || 'Failed to send message');
+          // Display specific server-side errors
+          setErrorMessage(data.error || 'The transmission was rejected by the gateway.');
+          console.warn('[CLIENT] Transmission rejected:', data.error);
         }
-      } catch (error) {
-        console.error('Submission error:', error);
+      } catch (error: any) {
+        console.error('[CLIENT] Fatal uplink failure:', error);
         setStatus('error');
-        setErrorMessage('Network error. Please try again later.');
+        
+        // Distinguish between network failure and server failure
+        if (error.message.includes('Incompatible response format')) {
+          setErrorMessage('Infrastructure Error: Invalid response from gateway.');
+        } else {
+          setErrorMessage('Network error: The uplink to the SOC server timed out or failed.');
+        }
       }
     }
   };
