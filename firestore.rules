@@ -1,0 +1,154 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: Firebase UID
+// Fields:
+//   - uid: string (required)
+//   - username: string (required)
+//   - role: string (Admin, Salesperson, InventoryManager)
+//   - createdAt: timestamp (required)
+//
+// Collection: products
+// Document ID: Auto-generated
+// Fields:
+//   - name: string (required, < 100 chars)
+//   - category: string
+//   - cost_price: number (>= 0)
+//   - retail_price: number (>= 0)
+//   - stock_quantity: number (>= 0)
+//   - barcode: string (< 50 chars)
+//
+// Collection: sales
+// Document ID: Auto-generated
+// Fields:
+//   - salesperson_id: string (UID)
+//   - total_amount: number
+//   - date: timestamp
+//   - items: list (maps with product details)
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin') ||
+         (request.auth.token.email == "nana038mail@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isManager() {
+      return isAuthenticated() && 
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'InventoryManager') || isAdmin());
+    }
+
+    function isSalesperson() {
+      return isAuthenticated() && 
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Salesperson') || isAdmin());
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'username', 'role', 'createdAt']) &&
+             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
+             data.role in ['Admin', 'Salesperson', 'InventoryManager'];
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'retail_price', 'stock_quantity']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.retail_price is number && data.retail_price >= 0 &&
+             data.stock_quantity is number && data.stock_quantity >= 0 &&
+             (!('barcode' in data) || (data.barcode is string && data.barcode.size() < 50));
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['total_amount', 'date', 'salesperson_id', 'items']) &&
+             data.total_amount is number && data.total_amount >= 0 &&
+             data.salesperson_id == request.auth.uid &&
+             data.items is list && data.items.size() <= 100;
+    }
+
+    // ===============================================================
+    // Match Patterns
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                      (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                      (isOwner(userId) && request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isManager() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /sales/{saleId} {
+      allow read: if isSalesperson();
+      allow create: if isSalesperson() && isValidSale(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isAuthenticated();
+      allow write: if isSalesperson();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if isManager();
+      allow write: if isManager();
+    }
+
+    match /expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /bank_accounts/{accountId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /saved_reports/{reportId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /customer_payments/{paymentId} {
+      allow read: if isSalesperson();
+      allow create: if isSalesperson();
+      allow update, delete: if isAdmin();
+    }
+
+    match /supplier_payments/{paymentId} {
+      allow read, write: if isManager();
+    }
+
+    match /supplier_invoices/{invoiceId} {
+      allow read, write: if isManager();
+    }
+    
+    match /_connection_test_/{testId} {
+      allow read: if true;
+    }
+  }
+}

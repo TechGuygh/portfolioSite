@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user with role-based permissions",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "username": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["Admin", "Salesperson", "InventoryManager"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username", "role", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Inventory item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "unit": { "type": "string" },
+        "cost_price": { "type": "number" },
+        "retail_price": { "type": "number" },
+        "wholesale_price": { "type": "number" },
+        "stock_quantity": { "type": "number" },
+        "min_stock_level": { "type": "number" },
+        "expiry_date": { "type": "string", "format": "date" },
+        "barcode": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "retail_price", "stock_quantity"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Sales transaction",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "total_amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["retail", "wholesale", "credit"] },
+        "payment_method": { "type": "string", "enum": ["cash", "pos", "transfer", "credit"] },
+        "customer_name": { "type": "string" },
+        "customer_id": { "type": "string" },
+        "salesperson_id": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "product_id": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "unit_price": { "type": "number" },
+              "cost_price": { "type": "number" },
+              "subtotal": { "type": "number" }
+            }
+          }
+        }
+      },
+      "required": ["date", "total_amount", "items"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Client information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "credit_limit": { "type": "number" },
+        "balance": { "type": "number" }
+      }
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Inventory source",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "contact_info": { "type": "string" },
+        "balance": { "type": "number" }
+      }
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Business outflow",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "description": { "type": "string" }
+      }
+    },
+    "BankAccount": {
+      "title": "BankAccount",
+      "description": "Financial accounts",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "balance": { "type": "number" }
+      }
+    },
+    "SavedReport": {
+      "title": "SavedReport",
+      "description": "Saved report filters",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "filters": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "User", "description": "User profiles" },
+    "/products/{productId}": { "schema": "Product", "description": "Inventory products" },
+    "/sales/{saleId}": { "schema": "Sale", "description": "Sales records" },
+    "/customers/{customerId}": { "schema": "Customer", "description": "Customer database" },
+    "/suppliers/{supplierId}": { "schema": "Supplier", "description": "Supplier records" },
+    "/expenses/{expenseId}": { "schema": "Expense", "description": "Tracked expenses" },
+    "/bank_accounts/{accountId}": { "schema": "BankAccount", "description": "Bank account tracking" },
+    "/saved_reports/{reportId}": { "schema": "SavedReport", "description": "User saved reports" },
+    "/customer_payments/{paymentId}": { "schema": "object", "description": "Customer payments on credit" },
+    "/supplier_payments/{paymentId}": { "schema": "object", "description": "Payments to suppliers" },
+    "/supplier_invoices/{invoiceId}": { "schema": "object", "description": "Invoices from suppliers" }
+  }
+}
