@@ -17,6 +17,7 @@ interface NavigationDrawerProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   visibleNavItems: { id: string; icon: any; label: string }[];
+  onLogout: () => void;
 }
 
 export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
@@ -26,6 +27,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   isSidebarOpen,
   setIsSidebarOpen,
   visibleNavItems,
+  onLogout,
 }) => {
   return (
     <aside 
@@ -92,6 +94,26 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
 
       {/* Footer Actions */}
       <div className="p-4 border-t border-slate-800 space-y-2">
+        <button 
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-rose-500/10 transition-colors text-slate-400 hover:text-rose-400"
+          title={!isSidebarOpen ? "Logout" : undefined}
+        >
+          <LogOut size={22} className="shrink-0" />
+          <AnimatePresence>
+            {isSidebarOpen && (
+              <motion.span 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="text-sm font-bold"
+              >
+                Sign Out
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800/60 transition-colors text-slate-400 hover:text-white"

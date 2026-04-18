@@ -1,5 +1,39 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary);
+  --color-surface: var(--surface);
+  --color-bg: var(--bg);
+  --color-border: var(--border);
+  --color-text-base: var(--text-base);
+  --color-text-muted: var(--text-muted);
+}
+
+:root {
+  --primary: #10b981; /* emerald-500 */
+  --surface: #ffffff;
+  --bg: #f8fafc; /* slate-50 */
+  --border: #e2e8f0; /* slate-200 */
+  --text-base: #0f172a; /* slate-900 */
+  --text-muted: #64748b; /* slate-500 */
+}
+
+.dark {
+  --surface: #1e293b; /* slate-800 */
+  --bg: #0f172a; /* slate-900 */
+  --border: #334155; /* slate-700 */
+  --text-base: #f8fafc; /* slate-50 */
+  --text-muted: #94a3b8; /* slate-400 */
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--text-base);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;

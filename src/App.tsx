@@ -25,6 +25,9 @@ import {
   CreditCard,
   LogOut,
   History,
+  Trash2,
+  Sun,
+  Moon,
   User as UserIcon
 } from 'lucide-react';
 import { 
@@ -49,6 +52,9 @@ import { Product, Sale, Expense, BankAccount, Supplier, User, SupplierInvoice, S
 import { NavigationDrawer } from './components/NavigationDrawer';
 import { IncidentsView } from './components/IncidentsView';
 import { AnalyticsView } from './components/AnalyticsView';
+import { AuthScreen } from './components/AuthScreen';
+import { SettingsView } from './components/SettingsView';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
   db, 
@@ -65,18 +71,12 @@ import {
   Timestamp, 
   serverTimestamp, 
   onAuthStateChanged,
-  signInWithPopup,
-  googleProvider,
   signOut,
   increment,
   setDoc,
   getDoc,
   limit
 } from './firebase';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword 
-} from 'firebase/auth';
 
 enum OperationType {
   CREATE = 'create',
@@ -236,14 +236,9 @@ export default function App() {
 function AppContent() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   
-  const [loginForm, setLoginForm] = useState({ email: '', password: '', username: '' });
-  const [loginError, setLoginError] = useState('');
-
   const [activeTab, setActiveTab] = useState('dashboard');
   const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
   const [localSearch, setLocalSearch] = useState('');
@@ -265,6 +260,20 @@ function AppContent() {
   const [stockValue, setStockValue] = useState(0);
   const [profitLoss, setProfitLoss] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'danger'
+  });
   
   // Modals
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
@@ -334,6 +343,16 @@ function AppContent() {
     type: 'all'
   });
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
   // Auth Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -389,39 +408,57 @@ function AppContent() {
     const unsubscribes: (() => void)[] = [];
 
     // Products
-    unsubscribes.push(onSnapshot(collection(db, 'products'), (snapshot) => {
-      setProducts(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'products')));
+    if (hasPermission(['Admin', 'InventoryManager', 'Salesperson'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'products'), (snapshot) => {
+        setProducts(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'products')));
+    }
 
     // Sales
-    unsubscribes.push(onSnapshot(query(collection(db, 'sales'), orderBy('date', 'desc'), limit(100)), (snapshot) => {
-      setSales(snapshot.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.()?.toISOString() || d.data().date } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'sales')));
+    if (hasPermission(['Admin', 'Salesperson'])) {
+      const salesQuery = currentUser.role === 'Admin'
+        ? query(collection(db, 'sales'), orderBy('date', 'desc'), limit(100))
+        : query(collection(db, 'sales'), where('salesperson_id', '==', currentUser.id), orderBy('date', 'desc'), limit(100));
+        
+      unsubscribes.push(onSnapshot(salesQuery, (snapshot) => {
+        setSales(snapshot.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.()?.toISOString() || d.data().date } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'sales')));
+    }
 
     // Customers
-    unsubscribes.push(onSnapshot(collection(db, 'customers'), (snapshot) => {
-      setCustomers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'customers')));
+    if (hasPermission(['Admin', 'Salesperson'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'customers'), (snapshot) => {
+        setCustomers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'customers')));
+    }
 
     // Expenses
-    unsubscribes.push(onSnapshot(collection(db, 'expenses'), (snapshot) => {
-      setExpenses(snapshot.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.()?.toISOString() || d.data().date } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'expenses')));
+    if (hasPermission(['Admin'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'expenses'), (snapshot) => {
+        setExpenses(snapshot.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.()?.toISOString() || d.data().date } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'expenses')));
+    }
 
     // Bank Accounts
-    unsubscribes.push(onSnapshot(collection(db, 'bank_accounts'), (snapshot) => {
-      setBankAccounts(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'bank_accounts')));
+    if (hasPermission(['Admin'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'bank_accounts'), (snapshot) => {
+        setBankAccounts(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'bank_accounts')));
+    }
 
     // Suppliers
-    unsubscribes.push(onSnapshot(collection(db, 'suppliers'), (snapshot) => {
-      setSuppliers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'suppliers')));
+    if (hasPermission(['Admin', 'InventoryManager'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'suppliers'), (snapshot) => {
+        setSuppliers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'suppliers')));
+    }
 
     // Users
-    unsubscribes.push(onSnapshot(collection(db, 'users'), (snapshot) => {
-      setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'users')));
+    if (hasPermission(['Admin'])) {
+      unsubscribes.push(onSnapshot(collection(db, 'users'), (snapshot) => {
+        setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'users')));
+    }
 
     // Incidents
     unsubscribes.push(onSnapshot(collection(db, 'incidents'), (snapshot) => {
@@ -522,38 +559,6 @@ function AppContent() {
     return currentUser && allowedRoles.includes(currentUser.role as Role);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    setIsLoggingIn(true);
-    try {
-      if (showSignup) {
-        await createUserWithEmailAndPassword(auth, loginForm.email, loginForm.password);
-        toast.success("Account created!");
-      } else {
-        await signInWithEmailAndPassword(auth, loginForm.email, loginForm.password);
-        toast.success("Welcome back!");
-      }
-    } catch (e: any) {
-      setLoginError(e.message);
-      toast.error(e.message);
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoggingIn(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      toast.success("Logged in with Google!");
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   if (!isAuthReady) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -563,86 +568,8 @@ function AppContent() {
   }
 
   if (!currentUser) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 font-sans text-slate-900 overflow-hidden">
-        <Toaster />
-        <Card className="w-full max-w-md p-8 m-4">
-          <div className="flex flex-col items-center mb-8">
-            <div className="bg-emerald-500 p-3 rounded-xl mb-4 text-white">
-              <TrendingUp size={32} />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">ShopAssist</h1>
-            <p className="text-slate-500">{showSignup ? 'Create your account' : 'Log in to manage your retail business.'}</p>
-          </div>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            {loginError && (
-              <div className="p-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg">
-                {loginError}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-              <input 
-                type="email" 
-                required
-                placeholder="email@example.com"
-                className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
-                value={loginForm.email}
-                onChange={e => setLoginForm({...loginForm, email: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <input 
-                type="password" 
-                required
-                placeholder="••••••••"
-                className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
-                value={loginForm.password}
-                onChange={e => setLoginForm({...loginForm, password: e.target.value})}
-              />
-            </div>
-            <button 
-              type="submit" 
-              disabled={isLoggingIn}
-              className="w-full bg-emerald-500 text-white py-2 rounded-lg font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50"
-            >
-              {isLoggingIn ? 'Processing...' : (showSignup ? 'Sign Up' : 'Login')}
-            </button>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-200"></span>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-400">Or continue with</span>
-            </div>
-          </div>
-
-          <button 
-            onClick={handleGoogleLogin} 
-            disabled={isLoggingIn}
-            className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors"
-          >
-             Sign in with Google
-          </button>
-          
-          <div className="mt-6 text-center">
-            <button 
-              onClick={() => setShowSignup(!showSignup)}
-              className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-            >
-              {showSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
-            </button>
-          </div>
-        </Card>
-      </div>
-    );
+    return <AuthScreen />;
   }
-
-// Remove extra hasPermission
 
   const handleSaveReport = async () => {
     if (!reportName.trim()) {
@@ -709,6 +636,149 @@ function AppContent() {
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, 'customer_payments');
     }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Product',
+      message: `Are you sure you want to delete "${product.name}"? This action cannot be undone and may affect historical sales data.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'products', productId));
+          toast.success('Product deleted successfully');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `products/${productId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteCustomer = async (customerId: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) return;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Customer',
+      message: `Are you sure you want to delete "${customer.name}"? All credit history and contact data for this customer will be removed.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'customers', customerId));
+          toast.success('Customer deleted successfully');
+          if (viewingCustomerId === customerId) setIsCustomerDetailModalOpen(false);
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `customers/${customerId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteSale = async (saleId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Sale Record',
+      message: 'Are you sure you want to delete this sale record? This will NOT automatically restore stock or reverse financial impacts. It is recommended to only delete accidental entries.',
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'sales', saleId));
+          toast.success('Sale record deleted');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `sales/${saleId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const userToDelete = users.find(u => u.id === userId);
+    if (!userToDelete) return;
+    
+    if (userId === currentUser?.id) {
+      toast.error("You cannot delete your own admin account.");
+      return;
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete User Profile',
+      message: `Are you sure you want to delete the profile for "${userToDelete.username}"? Note: This only removes their role and profile data from the system, it does not delete their login credentials in Firebase Auth.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'users', userId));
+          toast.success('User profile removed');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `users/${userId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    const expense = expenses.find(e => e.id === expenseId);
+    if (!expense) return;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Expense',
+      message: `Are you sure you want to delete this expense record for "${expense.description}"?`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'expenses', expenseId));
+          toast.success('Expense deleted');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `expenses/${expenseId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteSupplier = async (supplierId: string) => {
+    const supplier = suppliers.find(s => s.id === supplierId);
+    if (!supplier) return;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Supplier',
+      message: `Are you sure you want to delete "${supplier.name}"? This will also remove the supplier profile from the database.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'suppliers', supplierId));
+          toast.success('Supplier deleted');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `suppliers/${supplierId}`);
+        }
+      }
+    });
+  };
+
+  const handleDeleteBankAccount = async (accountId: string) => {
+    const account = bankAccounts.find(a => a.id === accountId);
+    if (!account) return;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Bank Account',
+      message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'bank_accounts', accountId));
+          toast.success('Bank account deleted');
+        } catch (err) {
+          handleFirestoreError(err, OperationType.DELETE, `bank_accounts/${accountId}`);
+        }
+      }
+    });
   };
 
   const handleBulkUpdate = async (e: React.FormEvent) => {
@@ -926,13 +996,22 @@ function AppContent() {
     { id: 'incidents', icon: AlertTriangle, label: 'Incidents', roles: ['Admin', 'InventoryManager', 'Salesperson'] },
     { id: 'analytics', icon: TrendingUp, label: 'Analytics', roles: ['Admin', 'InventoryManager'] },
     { id: 'reports', icon: TrendingUp, label: 'Reports', roles: ['Admin'] },
-    { id: 'users', icon: Settings, label: 'User Roles', roles: ['Admin'] }
+    { id: 'users', icon: UserIcon, label: 'User Roles', roles: ['Admin'] },
+    { id: 'settings', icon: Settings, label: 'Settings', roles: ['Admin'] }
   ];
 
   const visibleNavItems = NAV_ITEMS.filter(item => hasPermission(item.roles as Role[]));
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 transition-colors">
+      <ConfirmDialog 
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+        onConfirm={confirmDialog.onConfirm}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
       {/* Modals */}
       {isPaymentModalOpen && hasPermission(['Admin', 'InventoryManager']) && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1146,31 +1225,27 @@ function AppContent() {
             <form onSubmit={async (e) => {
               e.preventDefault();
               try {
-                const method = editingUserId ? 'PUT' : 'POST';
-                const url = editingUserId ? `/api/users/${editingUserId}` : '/api/users';
-                
-                // Only send password if it's new or being changed, avoiding empty password on PUT
-                const bodyData = { ...userForm };
-                if (editingUserId && !userForm.password) {
-                  delete (bodyData as any).password;
+                const userData = {
+                  username: userForm.username,
+                  role: userForm.role,
+                  updatedAt: serverTimestamp()
+                };
+
+                if (editingUserId) {
+                  await updateDoc(doc(db, 'users', editingUserId), userData);
+                  toast.success('User updated successfully');
+                } else {
+                  // For client-side creation without Admin SDK, we can only create the doc
+                  // Real Auth user creation requires backend or invitations
+                  toast.error("Adding new users directly is restricted to invitation only. Contact support for backend integration.");
+                  return;
                 }
 
-                const res = await fetch(url, {
-                  method: method,
-                  headers: {'Content-Type': 'application/json'},
-                  body: JSON.stringify(bodyData)
-                });
-                if (res.ok) {
-                  toast.success(editingUserId ? 'User updated successfully' : 'User added successfully');
-                  setIsUserModalOpen(false);
-                  setEditingUserId(null);
-                  setUserForm({ username: '', password: '', role: 'Salesperson' });
-                } else {
-                  const errInfo = await res.json();
-                  toast.error(errInfo.error || 'Failed to save user');
-                }
-              } catch (e) {
-                toast.error('Network error');
+                setIsUserModalOpen(false);
+                setEditingUserId(null);
+                setUserForm({ username: '', password: '', role: 'Salesperson' });
+              } catch (err) {
+                handleFirestoreError(err, editingUserId ? OperationType.UPDATE : OperationType.CREATE, `users/${editingUserId || 'new'}`);
               }
             }} className="p-6 space-y-4">
               <div>
@@ -1452,7 +1527,18 @@ function AppContent() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-3xl max-h-[90vh] flex flex-col">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-800 italic">Customer Profile</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white italic">Customer Profile</h2>
+                {hasPermission(['Admin']) && (
+                  <button 
+                    onClick={() => handleDeleteCustomer(viewingCustomerId!)}
+                    className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                    title="Delete Customer"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
+              </div>
               <button onClick={() => setIsCustomerDetailModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={24} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
@@ -1954,25 +2040,33 @@ function AppContent() {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         visibleNavItems={visibleNavItems}
+        onLogout={handleLogout}
       />
 
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-slate-200 px-8 py-4 sticky top-0 z-10 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-slate-800 capitalize">
+        <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-8 py-4 sticky top-0 z-10 flex items-center justify-between transition-colors">
+          <h1 className="text-xl font-semibold text-slate-800 dark:text-white capitalize">
             {activeTab === 'pos' ? 'POS Terminal' : 
              activeTab === 'sales' ? 'Sales History' : 
              activeTab.replace('_', ' ')}
           </h1>
           <div className="flex items-center gap-6">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
                 <UserIcon size={18} />
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-slate-800">{currentUser.username}</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{currentUser.role}</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-white">{currentUser.username}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">{currentUser.role}</p>
               </div>
             </div>
             {['dashboard', 'sales', 'pos'].includes(activeTab) && (
@@ -1997,11 +2091,15 @@ function AppContent() {
             )}
             <button 
               onClick={() => {
-                if (window.confirm('Are you sure you want to logout?')) {
-                  handleLogout();
-                }
+                setConfirmDialog({
+                  isOpen: true,
+                  title: 'Logout',
+                  message: 'Are you sure you want to end your current session?',
+                  variant: 'warning',
+                  onConfirm: () => handleLogout()
+                });
               }}
-              className="text-slate-500 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-all font-bold"
+              className="text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all font-bold"
               title="Logout"
             >
               <LogOut size={20} />
@@ -2222,9 +2320,17 @@ function AppContent() {
                                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Payment Method</p>
                                              <PaymentBadge method={sale.payment_method || 'Cash'} />
                                            </div>
-                                           <div className="text-right">
+                                           <div className="text-right flex flex-col items-end gap-2">
                                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
                                              <p className="text-xl font-bold text-emerald-600">{formatCurrency(sale.total_amount)}</p>
+                                             {hasPermission(['Admin']) && (
+                                               <button 
+                                                 onClick={() => handleDeleteSale(sale.id)}
+                                                 className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all border border-rose-100 dark:border-rose-900/50"
+                                               >
+                                                 <Trash2 size={12} /> Delete Record
+                                               </button>
+                                             )}
                                            </div>
                                          </div>
 
@@ -2443,7 +2549,16 @@ function AppContent() {
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {bankAccounts.map(account => (
-                      <div key={account.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                      <div key={account.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 group relative">
+                        {hasPermission(['Admin']) && (
+                          <button 
+                            onClick={() => handleDeleteBankAccount(account.id)}
+                            className="absolute right-2 top-2 p-1 text-slate-300 hover:text-rose-500 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                            title="Delete Account"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{account.name}</p>
                         <p className="text-xl font-bold text-slate-900 mt-1">{formatCurrency(account.balance)}</p>
                       </div>
@@ -2620,11 +2735,20 @@ function AppContent() {
                           </td>
                           <td className="px-6 py-4 text-slate-600">{formatCurrency(product.cost_price)}</td>
                           <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(product.retail_price)}</td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
                             <button onClick={() => {
                               setAdjustStockForm({ product_id: product.id, quantity_change: 0, reason: 'adjustment' });
                               setIsAdjustStockModalOpen(true);
                             }} className="text-emerald-500 font-medium text-sm hover:underline">Adjust Stock</button>
+                            {hasPermission(['Admin']) && (
+                              <button 
+                                onClick={() => handleDeleteProduct(product.id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                                title="Delete Product"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -2659,7 +2783,19 @@ function AppContent() {
                 {customers
                   .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone?.includes(searchQuery))
                   .map(customer => (
-                  <Card key={customer.id} className="p-6 group cursor-pointer hover:border-blue-300 transition-all" onClick={() => viewCustomerDetail(customer.id)}>
+                  <Card key={customer.id} className="p-6 group relative cursor-pointer hover:border-blue-300 transition-all" onClick={() => viewCustomerDetail(customer.id)}>
+                    {hasPermission(['Admin']) && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCustomer(customer.id);
+                        }}
+                        className="absolute right-4 top-4 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="Delete Customer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                         <Users size={24} />
@@ -2733,7 +2869,7 @@ function AppContent() {
                            (s.phone?.toLowerCase()?.includes(q));
                   })
                   .map(supplier => (
-                    <Card key={supplier.id} className="p-6 group hover:border-emerald-300 transition-all cursor-pointer" onClick={async () => {
+                    <Card key={supplier.id} className="p-6 group relative hover:border-emerald-300 transition-all cursor-pointer" onClick={async () => {
                       setViewingSupplierId(supplier.id);
                       setIsSupplierDetailModalOpen(true);
                       const q = query(collection(db, 'supplier_payments'), where('supplier_id', '==', supplier.id), orderBy('date', 'desc'), limit(50));
@@ -2741,6 +2877,18 @@ function AppContent() {
                         setSupplierPaymentHistory(sn.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate?.()?.toISOString() || d.data().date } as any)));
                       }, (err) => handleFirestoreError(err, OperationType.LIST, `suppliers/${supplier.id}/payments`));
                     }}>
+                    {hasPermission(['Admin']) && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSupplier(supplier.id);
+                        }}
+                        className="absolute right-4 top-4 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="Delete Supplier"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                     <div className="flex items-center justify-between mb-4">
                       <div className="bg-blue-100 text-blue-600 p-2 rounded-lg group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
                         <Users size={20} />
@@ -2872,9 +3020,33 @@ function AppContent() {
                         <th className="px-6 py-4 font-medium">Category</th>
                         <th className="px-6 py-4 font-medium">Description</th>
                         <th className="px-6 py-4 font-medium text-right">Amount</th>
+                        <th className="px-6 py-4 font-medium text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
+                      {expenses
+                        .filter(e => !searchQuery || e.description.toLowerCase().includes(searchQuery.toLowerCase()) || e.category.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map(expense => (
+                        <tr key={expense.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4 text-slate-600">{format(new Date(expense.date), 'MMM d, yyyy')}</td>
+                          <td className="px-6 py-4">
+                            <span className="bg-rose-50 text-rose-600 text-xs font-bold px-2 py-1 rounded">
+                              {expense.category}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-900 font-medium">{expense.description}</td>
+                          <td className="px-6 py-4 text-right font-bold text-rose-600">{formatCurrency(expense.amount)}</td>
+                          <td className="px-6 py-4 text-right">
+                            <button 
+                              onClick={() => handleDeleteExpense(expense.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                              title="Delete Expense"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                       {expenses
                         .filter(e => !searchQuery || e.description.toLowerCase().includes(searchQuery.toLowerCase()) || e.category.toLowerCase().includes(searchQuery.toLowerCase()))
                         .length === 0 && (
@@ -2990,9 +3162,9 @@ function AppContent() {
                               {user.role}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                             <button 
-                              className="text-slate-400 hover:text-emerald-500 font-medium"
+                              className="text-emerald-500 font-medium hover:underline text-sm"
                               onClick={() => {
                                 setEditingUserId(user.id);
                                 setUserForm({ username: user.username, password: '', role: user.role });
@@ -3001,6 +3173,15 @@ function AppContent() {
                             >
                               Edit
                             </button>
+                            {user.id !== currentUser?.id && (
+                              <button 
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                                title="Delete User"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -3219,6 +3400,10 @@ function AppContent() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'settings' && hasPermission(['Admin']) && (
+            <SettingsView />
           )}
         </div>
       </main>

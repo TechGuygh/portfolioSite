@@ -1,118 +1,124 @@
-// ===============================================================
-// Assumed Data Model
-// ===============================================================
-//
-// Collection: users
-// Document ID: Firebase UID
-// Fields:
-//   - uid: string (required)
-//   - username: string (required)
-//   - role: string (Admin, Salesperson, InventoryManager)
-//   - createdAt: timestamp (required)
-//
-// Collection: products
-// Document ID: Auto-generated
-// Fields:
-//   - name: string (required, < 100 chars)
-//   - category: string
-//   - cost_price: number (>= 0)
-//   - retail_price: number (>= 0)
-//   - stock_quantity: number (>= 0)
-//   - barcode: string (< 50 chars)
-//
-// Collection: sales
-// Document ID: Auto-generated
-// Fields:
-//   - salesperson_id: string (UID)
-//   - total_amount: number
-//   - date: timestamp
-//   - items: list (maps with product details)
-//
-// ===============================================================
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // ===============================================================
+    // 0. Global Safety Net
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
 
     // ===============================================================
     // Helper Functions
     // ===============================================================
 
-    function isAuthenticated() {
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Role-based access control
+    // Note: To avoid recursion and ensure unverified bootstrap admin can work
     function isAdmin() {
-      return isAuthenticated() &&
-        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin') ||
-         (request.auth.token.email == "nana038mail@gmail.com" && request.auth.token.email_verified == true));
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin') ||
+        (request.auth.token.email == "nana038mail@gmail.com" && request.auth.token.email_verified == true)
+      );
     }
 
     function isManager() {
-      return isAuthenticated() && 
-        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'InventoryManager') || isAdmin());
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'InventoryManager') ||
+        isAdmin()
+      );
     }
 
     function isSalesperson() {
-      return isAuthenticated() && 
-        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Salesperson') || isAdmin());
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Salesperson') ||
+        isAdmin()
+      );
     }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // ===============================================================
+    // Entity Validations
+    // ===============================================================
 
     function isValidUser(data) {
       return data.keys().hasAll(['uid', 'username', 'role', 'createdAt']) &&
-             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
-             data.role in ['Admin', 'Salesperson', 'InventoryManager'];
+             data.uid is string && data.uid.size() >= 1 &&
+             data.username is string && data.username.size() >= 1 && data.username.size() <= 64 &&
+             data.role in ['Admin', 'Salesperson', 'InventoryManager'] &&
+             data.createdAt is timestamp;
     }
 
     function isValidProduct(data) {
       return data.keys().hasAll(['name', 'retail_price', 'stock_quantity']) &&
-             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 128 &&
              data.retail_price is number && data.retail_price >= 0 &&
-             data.stock_quantity is number && data.stock_quantity >= 0 &&
-             (!('barcode' in data) || (data.barcode is string && data.barcode.size() < 50));
+             data.stock_quantity is number && data.stock_quantity >= 0;
     }
 
     function isValidSale(data) {
-      return data.keys().hasAll(['total_amount', 'date', 'salesperson_id', 'items']) &&
+      return data.keys().hasAll(['date', 'total_amount', 'salesperson_id', 'items']) &&
              data.total_amount is number && data.total_amount >= 0 &&
              data.salesperson_id == request.auth.uid &&
-             data.items is list && data.items.size() <= 100;
+             data.items is list && data.items.size() >= 1;
     }
 
     // ===============================================================
-    // Match Patterns
+    // Collection Match Blocks
     // ===============================================================
 
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
-                      (isOwner(userId) || isAdmin());
-      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
-                      (isOwner(userId) && request.resource.data.role == resource.data.role || isAdmin());
+      // Allow user to get their own profile during login or if they are admin
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      // Only admins can list all users
+      allow list: if isAdmin();
+      
+      allow create: if (isOwner(userId) && isValidUser(incoming())) || isAdmin();
+      allow update: if (isOwner(userId) && incoming().role == existing().role && isValidUser(incoming())) || isAdmin();
       allow delete: if isAdmin();
     }
 
     match /products/{productId} {
-      allow read: if isAuthenticated();
-      allow create, update: if isManager() && isValidProduct(request.resource.data);
+      allow read: if isSignedIn();
+      allow create: if isManager() && isValidId(productId) && isValidProduct(incoming());
+      allow update: if isManager() && isValidProduct(incoming());
       allow delete: if isAdmin();
     }
 
     match /sales/{saleId} {
-      allow read: if isSalesperson();
-      allow create: if isSalesperson() && isValidSale(request.resource.data);
+      // Secure list query
+      allow list: if isSignedIn() && (isAdmin() || existing().salesperson_id == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || existing().salesperson_id == request.auth.uid);
+      
+      allow create: if isSalesperson() && isValidSale(incoming());
       allow update, delete: if isAdmin();
     }
 
     match /customers/{customerId} {
-      allow read: if isAuthenticated();
+      allow read: if isSignedIn();
       allow write: if isSalesperson();
     }
 
@@ -134,9 +140,7 @@ service cloud.firestore {
     }
 
     match /customer_payments/{paymentId} {
-      allow read: if isSalesperson();
-      allow create: if isSalesperson();
-      allow update, delete: if isAdmin();
+      allow read, write: if isSalesperson();
     }
 
     match /supplier_payments/{paymentId} {
@@ -146,19 +150,19 @@ service cloud.firestore {
     match /supplier_invoices/{invoiceId} {
       allow read, write: if isManager();
     }
-    
+
     match /incidents/{incidentId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated(); // All authenticated users can log incidents
-      allow update: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.createdBy); // Admin or creator can update
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isAdmin() || existing().createdBy == request.auth.uid);
       allow delete: if isAdmin();
     }
-    
+
     match /incident_types/{typeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin(); // Only Admin can manage types
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
-    
+
     match /_connection_test_/{testId} {
       allow read: if true;
     }
