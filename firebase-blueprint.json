@@ -29,9 +29,44 @@
         "min_stock_level": { "type": "number" },
         "expiry_date": { "type": "string", "format": "date" },
         "barcode": { "type": "string" },
+        "image_url": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "retail_price", "stock_quantity"]
+    },
+    "ProductVariant": {
+      "title": "ProductVariant",
+      "description": "Variant of a base product",
+      "type": "object",
+      "properties": {
+        "attributes": { "type": "object" },
+        "price": { "type": "number" },
+        "stock_quantity": { "type": "number" }
+      },
+      "required": ["attributes", "stock_quantity"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "Logged issues or maintenance items",
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["Open", "In Progress", "Resolved"] },
+        "type_id": { "type": "string" },
+        "type_name": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["description", "status", "type_id", "createdBy", "createdAt"]
+    },
+    "IncidentType": {
+      "title": "IncidentType",
+      "description": "Types of incidents (e.g., missing, damaged)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "required": ["name"]
     },
     "Sale": {
       "title": "Sale",
@@ -118,6 +153,9 @@
   "firestore": {
     "/users/{uid}": { "schema": "User", "description": "User profiles" },
     "/products/{productId}": { "schema": "Product", "description": "Inventory products" },
+    "/products/{productId}/variants/{variantId}": { "schema": "ProductVariant", "description": "Product variants" },
+    "/incidents/{incidentId}": { "schema": "Incident", "description": "Incident tracking" },
+    "/incident_types/{typeId}": { "schema": "IncidentType", "description": "Allowed incident types" },
     "/sales/{saleId}": { "schema": "Sale", "description": "Sales records" },
     "/customers/{customerId}": { "schema": "Customer", "description": "Customer database" },
     "/suppliers/{supplierId}": { "schema": "Supplier", "description": "Supplier records" },

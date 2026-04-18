@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect, Component, useRef } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -23,7 +23,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   CreditCard,
-  History
+  LogOut,
+  History,
+  User as UserIcon
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -41,9 +43,12 @@ import {
 } from 'recharts';
 import { format, startOfMonth, endOfMonth, subMonths, addDays, parseISO, isBefore } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
+import { Card } from './components/Card';
 import { cn, formatCurrency } from './lib/utils';
-import { Product, Sale, Expense, BankAccount, Supplier, User, SupplierInvoice, SupplierPayment, Role, Customer, CustomerCreditTransaction, SavedReport, ProductPerformance } from './types';
+import { Product, Sale, Expense, BankAccount, Supplier, User, SupplierInvoice, SupplierPayment, Role, Customer, CustomerCreditTransaction, SavedReport, ProductPerformance, Incident } from './types';
 import { NavigationDrawer } from './components/NavigationDrawer';
+import { IncidentsView } from './components/IncidentsView';
+import { AnalyticsView } from './components/AnalyticsView';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
   db, 
@@ -201,14 +206,6 @@ const PaymentBadge = ({ method }: { method: string }) => {
     </span>
   );
 };
-const Card = ({ children, className, onClick }: { children: React.ReactNode, className?: string, onClick?: () => void, key?: any }) => (
-  <div 
-    onClick={onClick} 
-    className={cn("bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden", className, onClick && "cursor-pointer")}
-  >
-    {children}
-  </div>
-);
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) => (
   <Card className="p-6">
@@ -250,6 +247,12 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
   const [localSearch, setLocalSearch] = useState('');
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidentTypes, setIncidentTypes] = useState<{ id: string; name: string }[]>([]);
+  const incidentsRef = useRef<Incident[]>([]);
+
+  useEffect(() => { incidentsRef.current = incidents; }, [incidents]);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -362,6 +365,23 @@ function AppContent() {
     return () => unsubscribe();
   }, []);
 
+  // Expiry Notifications
+  const today = new Date();
+  const thirtyDaysFromNow = addDays(today, 30);
+  const expiringProducts = products.filter(p => {
+    if (!p.expiry_date) return false;
+    const expDate = parseISO(p.expiry_date);
+    return isBefore(expDate, thirtyDaysFromNow) && p.stock_quantity > 0;
+  });
+
+  useEffect(() => {
+    if (expiringProducts.length > 0) {
+      expiringProducts.forEach((p) => {
+        toast.error(`Product expiring soon: ${p.name} on ${p.expiry_date}`, { duration: 6000 });
+      });
+    }
+  }, [expiringProducts]);
+
   // Real-time Data Fetching
   useEffect(() => {
     if (!currentUser) return;
@@ -403,6 +423,29 @@ function AppContent() {
       setUsers(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     }, (err) => handleFirestoreError(err, OperationType.LIST, 'users')));
 
+    // Incidents
+    unsubscribes.push(onSnapshot(collection(db, 'incidents'), (snapshot) => {
+      const newIncidents = snapshot.docs.map(d => ({ id: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate?.()?.toISOString() || d.data().createdAt } as any));
+      
+      // Notification Logic
+      if (incidentsRef.current.length > 0 && newIncidents.length > incidentsRef.current.length) {
+         toast.success('New incident logged!');
+      } else {
+         newIncidents.forEach(newInc => {
+            const oldInc = incidentsRef.current.find(i => i.id === newInc.id);
+            if (oldInc && oldInc.status !== newInc.status) {
+               toast(`Incident status changed: ${newInc.description} is now ${newInc.status}`);
+            }
+         });
+      }
+      setIncidents(newIncidents);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'incidents')));
+
+    // Incident Types
+    unsubscribes.push(onSnapshot(collection(db, 'incident_types'), (snapshot) => {
+      setIncidentTypes(snapshot.docs.map(d => ({ id: d.id, name: d.data().name } as any)));
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'incident_types')));
+
     return () => unsubscribes.forEach(un => un());
   }, [currentUser]);
 
@@ -436,12 +479,12 @@ function AppContent() {
 
     // Profit & Loss
     const filteredSales = sales.filter(s => {
-      const d = s.date.split('T')[0];
+      const d = (s.date || '').split('T')[0];
       return d >= reportFilters.startDate && d <= reportFilters.endDate;
     });
     const income = filteredSales.reduce((sum, s) => sum + s.total_amount, 0);
     const filteredExpenses = expenses.filter(e => {
-      const d = e.date.split('T')[0];
+      const d = (e.date || '').split('T')[0];
       return d >= reportFilters.startDate && d <= reportFilters.endDate;
     });
     const expenseTotal = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
@@ -600,14 +643,6 @@ function AppContent() {
   }
 
 // Remove extra hasPermission
-
-  const today = new Date();
-  const thirtyDaysFromNow = addDays(today, 30);
-  const expiringProducts = products.filter(p => {
-    if (!p.expiry_date) return false;
-    const expDate = parseISO(p.expiry_date);
-    return isBefore(expDate, thirtyDaysFromNow) && p.stock_quantity > 0;
-  });
 
   const handleSaveReport = async () => {
     if (!reportName.trim()) {
@@ -888,6 +923,8 @@ function AppContent() {
     { id: 'crm', icon: Users, label: 'CRM', roles: ['Admin', 'Salesperson'] },
     { id: 'suppliers', icon: Users, label: 'Suppliers', roles: ['Admin', 'InventoryManager'] },
     { id: 'expenses', icon: Briefcase, label: 'Expenses', roles: ['Admin'] },
+    { id: 'incidents', icon: AlertTriangle, label: 'Incidents', roles: ['Admin', 'InventoryManager', 'Salesperson'] },
+    { id: 'analytics', icon: TrendingUp, label: 'Analytics', roles: ['Admin', 'InventoryManager'] },
     { id: 'reports', icon: TrendingUp, label: 'Reports', roles: ['Admin'] },
     { id: 'users', icon: Settings, label: 'User Roles', roles: ['Admin'] }
   ];
@@ -1330,6 +1367,17 @@ function AppContent() {
                   <input type="date" name="expiry_date" className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" />
                 </div>
                 <div className="col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Product Variants</label>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input type="text" placeholder="Attributes (e.g. Size:M)" className="flex-1 px-3 py-1.5 border border-slate-200 rounded text-sm"/>
+                      <input type="number" placeholder="Price" className="w-20 px-3 py-1.5 border border-slate-200 rounded text-sm"/>
+                      <input type="number" placeholder="Stock" className="w-20 px-3 py-1.5 border border-slate-200 rounded text-sm"/>
+                      <button type="button" className="text-emerald-500">+</button>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Image URL (Optional)</label>
                   <input type="url" name="image_url" placeholder="https://example.com/image.jpg" className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" />
                 </div>
@@ -1496,7 +1544,16 @@ function AppContent() {
                                 <tr key={sale.id}>
                                   <td className="px-4 py-3 text-slate-600 text-xs">{format(new Date(sale.date), 'MMM d, yyyy')}</td>
                                   <td className="px-4 py-3 font-bold text-slate-900">{formatCurrency(sale.total_amount)}</td>
-                                  <td className="px-4 py-3 capitalize text-slate-500">{sale.type}</td>
+                                  <td className="px-4 py-3">
+                                    <span className={cn(
+                                      "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize",
+                                      sale.type === 'retail' ? "bg-slate-100 text-slate-700" : 
+                                      sale.type === 'wholesale' ? "bg-purple-100 text-purple-700" :
+                                      "bg-amber-100 text-amber-700"
+                                    )}>
+                                      {sale.type}
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -1793,6 +1850,9 @@ function AppContent() {
                             </span>
                           )}
                         </div>
+                        {product.image_url && (
+                          <img src={product.image_url} alt={product.name} className="w-full h-24 object-cover rounded-lg my-2" referrerPolicy="no-referrer" />
+                        )}
                         <p className="text-xs text-slate-500">{product.category}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm font-bold text-slate-900">{formatCurrency(product.retail_price)}</span>
@@ -1894,20 +1954,28 @@ function AppContent() {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         visibleNavItems={visibleNavItems}
-        onLogout={handleLogout}
       />
 
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-bottom border-slate-200 px-8 py-4 sticky top-0 z-10 flex items-center justify-between">
+        <header className="bg-white border-b border-slate-200 px-8 py-4 sticky top-0 z-10 flex items-center justify-between">
           <h1 className="text-xl font-semibold text-slate-800 capitalize">
             {activeTab === 'pos' ? 'POS Terminal' : 
              activeTab === 'sales' ? 'Sales History' : 
              activeTab.replace('_', ' ')}
           </h1>
-          {['dashboard', 'sales', 'pos'].includes(activeTab) && (
-            <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                <UserIcon size={18} />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-800">{currentUser.username}</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{currentUser.role}</p>
+              </div>
+            </div>
+            {['dashboard', 'sales', 'pos'].includes(activeTab) && (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input 
@@ -1918,14 +1986,27 @@ function AppContent() {
                   className="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 w-64"
                 />
               </div>
+            )}
+            {activeTab === 'pos' && (
               <button 
                 onClick={() => setIsSaleModalOpen(true)}
                 className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors flex items-center gap-2"
               >
                 <Plus size={18} /> New Transaction
               </button>
-            </div>
-          )}
+            )}
+            <button 
+              onClick={() => {
+                if (window.confirm('Are you sure you want to logout?')) {
+                  handleLogout();
+                }
+              }}
+              className="text-slate-500 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-all font-bold"
+              title="Logout"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
         </header>
 
         <div className="p-8">
@@ -2103,8 +2184,10 @@ function AppContent() {
                                 </td>
                                 <td className="px-6 py-4">
                                    <span className={cn(
-                                     "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded",
-                                     sale.type === 'retail' ? "bg-slate-100 text-slate-500" : "bg-blue-50 text-blue-600"
+                                     "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold capitalize",
+                                     sale.type === 'retail' ? "bg-slate-100 text-slate-700" : 
+                                     sale.type === 'wholesale' ? "bg-purple-100 text-purple-700" :
+                                     "bg-amber-100 text-amber-700"
                                    )}>
                                      {sale.type}
                                    </span>
@@ -2259,7 +2342,9 @@ function AppContent() {
                         <div className="flex items-center gap-3">
                           <div className={cn(
                             "p-2 rounded-full",
-                            sale.type === 'retail' ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"
+                            sale.type === 'retail' ? "bg-slate-100 text-slate-600" :
+                            sale.type === 'wholesale' ? "bg-purple-100 text-purple-600" : 
+                            "bg-amber-100 text-amber-600"
                           )}>
                             <ShoppingCart size={16} />
                           </div>
@@ -2485,7 +2570,7 @@ function AppContent() {
                         .length === 0 && (
                         <tr>
                           <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
-                            No products found matching criteria.
+                            No products matching "{searchQuery}".
                           </td>
                         </tr>
                       )}
@@ -2818,6 +2903,38 @@ function AppContent() {
             </div>
           )}
 
+          {activeTab === 'incidents' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-800">Incident Management</h2>
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <IncidentsView incidents={incidents.filter(i => 
+                  !searchQuery || 
+                  i.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  i.type_name?.toLowerCase().includes(searchQuery.toLowerCase())
+                )} incidentTypes={incidentTypes} currentUser={currentUser} />
+                {incidents.filter(i => 
+                  !searchQuery || 
+                  i.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  i.type_name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && (
+                  <div className="text-center py-12 text-slate-500">
+                    No incidents found for "{searchQuery}". Try a different term.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <h2 className="text-lg font-bold text-slate-800">Product Performance Analytics</h2>
+              <AnalyticsView performance={productPerformance} />
+            </div>
+          )}
+
           {activeTab === 'users' && hasPermission(['Admin']) && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -3063,7 +3180,7 @@ function AppContent() {
                                        item.profit_margin > 30 ? "bg-emerald-100 text-emerald-700" : 
                                        item.profit_margin > 15 ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
                                      )}>
-                                       {item.profit_margin.toFixed(1)}%
+                                       {(item.profit_margin || 0).toFixed(1)}%
                                      </span>
                                   </td>
                                </tr>

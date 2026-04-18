@@ -147,6 +147,18 @@ service cloud.firestore {
       allow read, write: if isManager();
     }
     
+    match /incidents/{incidentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // All authenticated users can log incidents
+      allow update: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.createdBy); // Admin or creator can update
+      allow delete: if isAdmin();
+    }
+    
+    match /incident_types/{typeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin(); // Only Admin can manage types
+    }
+    
     match /_connection_test_/{testId} {
       allow read: if true;
     }

@@ -17,7 +17,6 @@ interface NavigationDrawerProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   visibleNavItems: { id: string; icon: any; label: string }[];
-  onLogout: () => void;
 }
 
 export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
@@ -27,7 +26,6 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   isSidebarOpen,
   setIsSidebarOpen,
   visibleNavItems,
-  onLogout
 }) => {
   return (
     <aside 
@@ -53,31 +51,6 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             </motion.span>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* User Profile Section */}
-      <div className="px-4 py-6 border-b border-slate-800/50">
-        <div className={cn(
-          "flex items-center gap-3 rounded-xl p-2 transition-colors",
-          isSidebarOpen ? "bg-slate-800/40" : "justify-center"
-        )}>
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
-            <UserIcon size={20} />
-          </div>
-          <AnimatePresence>
-            {isSidebarOpen && (
-              <motion.div 
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                className="overflow-hidden"
-              >
-                <p className="text-sm font-bold text-white truncate">{currentUser.username}</p>
-                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider truncate">{currentUser.role}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       </div>
 
       {/* Scrollable Navigation Area */}
@@ -133,29 +106,6 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 className="text-sm font-medium"
               >
                 Collapse
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-        
-        <button 
-          onClick={() => {
-            if (window.confirm('Are you sure you want to logout?')) {
-              onLogout();
-            }
-          }}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all font-bold group"
-        >
-          <LogOut size={22} className="shrink-0 transition-transform group-hover:-translate-x-1" />
-          <AnimatePresence>
-            {isSidebarOpen && (
-              <motion.span 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="text-sm whitespace-nowrap"
-              >
-                Logout Account
               </motion.span>
             )}
           </AnimatePresence>

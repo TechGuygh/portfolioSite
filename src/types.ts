@@ -6,6 +6,13 @@ export interface User {
   role: Role;
 }
 
+export interface ProductVariant {
+  id: string;
+  attributes: Record<string, string>;
+  price: number;
+  stock_quantity: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -18,6 +25,24 @@ export interface Product {
   min_stock_level: number;
   expiry_date?: string;
   barcode?: string;
+  image_url?: string;
+  variants?: ProductVariant[];
+  createdAt: string;
+}
+
+export interface Incident {
+  id: string;
+  description: string;
+  status: 'Open' | 'In Progress' | 'Resolved';
+  type_id: string;
+  type_name: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface IncidentType {
+  id: string;
+  name: string;
 }
 
 export interface SaleItem {
