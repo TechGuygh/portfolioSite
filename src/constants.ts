@@ -16,6 +16,7 @@ export const NAV_LINKS = [
   { name: 'Home', href: '#hero' },
   { name: 'About', href: '#about' },
   { name: 'Experience', href: '#experience' },
+  { name: 'Intel', href: '#intel' },
   { name: 'Volunteering', href: '#volunteering' },
   { name: 'Certificates', href: '#certifications' },
   { name: 'Projects', href: '#projects' },
@@ -91,30 +92,35 @@ export const SERVICES = [
     description: 'Real-time surveillance of network traffic and system logs to identify suspicious patterns and potential breaches.',
     icon: Eye,
     color: 'blue',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Incident Response',
     description: 'Rapid containment and remediation of security incidents to minimize operational impact and data loss.',
     icon: Zap,
     color: 'purple',
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'SIEM Engineering',
     description: 'Designing and optimizing SIEM architectures (Splunk, Sentinel) for maximum visibility and alert accuracy.',
     icon: Database,
     color: 'blue',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Threat Intelligence',
     description: 'Analyzing global threat landscapes to proactively fortify defenses against emerging attack vectors.',
     icon: Search,
     color: 'purple',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Security Automation',
     description: 'Building SOAR playbooks and custom scripts to automate repetitive triage and response tasks.',
     icon: Cpu,
     color: 'blue',
+    image: 'https://images.unsplash.com/photo-1518433278981-1675f2a0bfdf?auto=format&fit=crop&q=80&w=800',
   },
 ];
 

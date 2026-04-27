@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Linkedin, Send, CheckCircle } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 export default function Contact() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,54 +44,48 @@ export default function Contact() {
       setErrorMessage('');
       
       try {
-        console.log('[CLIENT] Initiating secure transmission...');
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        });
+        console.log('[CLIENT] Initiating secure transmission via EmailJS...');
+        
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-        // Debug logging for developers
-        console.log(`[CLIENT] Uplink Status: ${response.status} ${response.statusText}`);
-
-        // Check if response is JSON to prevent parse errors
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          const rawResponse = await response.text();
-          console.error('[CLIENT] Non-JSON payload detected:', rawResponse);
-          throw new Error('Incompatible response format from infrastructure.');
+        if (!serviceId || !templateId || !publicKey) {
+          throw new Error('EmailJS credentials are not configured in environment variables.');
         }
 
-        const data = await response.json();
+        if (formRef.current) {
+          const result = await emailjs.sendForm(
+            serviceId,
+            templateId,
+            formRef.current,
+            publicKey
+          );
 
-        if (response.ok) {
-          setIsSubmitted(true);
-          setStatus('success');
-          console.log('[CLIENT] Transmission verified.');
-          setFormData({ name: '', email: '', message: '' });
-          setTimeout(() => {
-            setIsSubmitted(false);
-            setStatus('idle');
-          }, 5000);
-        } else {
-          setStatus('error');
-          // Display specific server-side errors
-          setErrorMessage(data.error || 'The transmission was rejected by the gateway.');
-          console.warn('[CLIENT] Transmission rejected:', data.error);
+          console.log('[CLIENT] Transmission verified:', result.status, result.text);
+
+          if (result.status === 200) {
+            setIsSubmitted(true);
+            setStatus('success');
+            setFormData({ name: '', email: '', message: '' });
+            setTimeout(() => {
+              setIsSubmitted(false);
+              setStatus('idle');
+            }, 5000);
+          } else {
+            throw new Error(result.text || 'The transmission was rejected by the gateway.');
+          }
         }
       } catch (error: any) {
         console.error('[CLIENT] Fatal uplink failure:', error);
         setStatus('error');
         
-        // Distinguish between network failure and server failure
-        if (error.message.includes('Incompatible response format')) {
-          setErrorMessage('Infrastructure Error: Invalid response from gateway.');
-        } else {
-          setErrorMessage('Network error: The uplink to the SOC server timed out or failed.');
-        }
+        // Ensure error message is a string and user-friendly
+        const msg = typeof error === 'string' 
+          ? error 
+          : error?.message || 'Network error: The uplink to the SOC server timed out or failed.';
+        
+        setErrorMessage(msg);
       }
     }
   };
@@ -208,14 +204,18 @@ export default function Contact() {
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5" noValidate>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
                   <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Name</label>
                   <input 
-                    name="name"
+                    name="from_name"
                     value={formData.name}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData(prev => ({ ...prev, name: val }));
+                      if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                    }}
                     type="text" 
                     className={`w-full bg-white/5 border rounded-xl px-5 py-3 text-sm focus:outline-none transition-colors ${errors.name ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
                     placeholder="John Doe" 
@@ -225,9 +225,13 @@ export default function Contact() {
                 <div className="space-y-1.5">
                   <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Email</label>
                   <input 
-                    name="email"
+                    name="reply_to"
                     value={formData.email}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData(prev => ({ ...prev, email: val }));
+                      if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                    }}
                     type="email" 
                     className={`w-full bg-white/5 border rounded-xl px-5 py-3 text-sm focus:outline-none transition-colors ${errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
                     placeholder="john@example.com" 
@@ -240,7 +244,11 @@ export default function Contact() {
                 <textarea 
                   name="message"
                   value={formData.message}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData(prev => ({ ...prev, message: val }));
+                    if (errors.message) setErrors(prev => ({ ...prev, message: '' }));
+                  }}
                   rows={4} 
                   className={`w-full bg-white/5 border rounded-xl px-5 py-3 text-sm focus:outline-none transition-colors resize-none ${errors.message ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-zorvyn-blue'}`} 
                   placeholder="How can I help you?" 
